@@ -7,7 +7,7 @@ function carboncoopreport_initUI() {
     };
     (function () {
         var wf = document.createElement('script');
-        wf.src = '../Lib/webfont.js';
+        wf.src = jspath + 'reports/carboncoopreport/Lib/webfont.js';
         wf.type = 'text/javascript';
         wf.async = 'true';
         var s = document.getElementsByTagName('script')[0];
