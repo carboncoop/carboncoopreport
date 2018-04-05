@@ -25,7 +25,11 @@ function carboncoopreport_initUI() {
 }
 
 function carboncoopreport_UpdateUI() {
-
+    window.onbeforeprint = function(){
+        hide_sidebar();
+        console.log('aaaaaaaaaaa')
+    };
+    
     var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
 
     // Picture
