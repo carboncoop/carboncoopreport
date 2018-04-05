@@ -1154,12 +1154,12 @@ function carboncoopreport_UpdateUI() {
     if (data.household.reading_temp1 == undefined && data.household.reading_temp2 == undefined)
         $(".js-average-temp").html('There is not enough information, please check section 3 in Household Questionnaire.');
     else if (data.household.reading_temp1 != undefined && data.household.reading_temp2 == undefined)
-        $(".js-average-temp").html('When we visited, the relative temperature was ' + data.household.reading_temp1 + ' °C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
+        $(".js-average-temp").html('When we visited, the temperature was ' + data.household.reading_temp1 + ' °C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
     else if (data.household.reading_temp1 == undefined && data.household.reading_temp2 != undefined)
-        $(".js-average-temp").html(' When we visited, the relative temperature was ' + data.household.reading_temp2 + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
+        $(".js-average-temp").html(' When we visited, the temperature was ' + data.household.reading_temp2 + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
     else {
         var averageHumidity = 0.5 * (data.household.reading_temp1 + data.household.reading_temp2);
-        $(".js-average-temp").html('When we visited, the relative temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
+        $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
     }
     // Figure 16: You also told us...
     // 
