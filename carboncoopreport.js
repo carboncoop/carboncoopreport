@@ -445,7 +445,7 @@ function carboncoopreport_UpdateUI() {
         barLabelsColor: 'rgb(87, 77, 86)',
         yAxisLabel: "kWh/m" + String.fromCharCode(178) + ".year",
         fontSize: 33,
-        width: 1075.35,
+        width: 1200.35,
         chartHeight: 600,
         division: 50,
         barWidth: 110,
