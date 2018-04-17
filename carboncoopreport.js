@@ -445,7 +445,7 @@ function carboncoopreport_UpdateUI() {
         barLabelsColor: 'rgb(87, 77, 86)',
         yAxisLabel: "kWh/m" + String.fromCharCode(178) + ".year",
         fontSize: 33,
-        width: 1075.35,
+        width: 1200.35,
         chartHeight: 600,
         division: 50,
         barWidth: 110,
@@ -880,68 +880,7 @@ function carboncoopreport_UpdateUI() {
     $('#estimated-energy-cost-comparison').html('');
     EstimatedEnergyCosts.draw('estimated-energy-cost-comparison');
 
-    // Figure 11: Your home compared with the average home.      // Main SAP assumptions  vs actual condition comparison - table stating 'higher' or 'lower'.
-    // Would be useful to have total hours of heating (currently only given times heating is on - see question 3a)
-    // Where is data for number of rooms not heated? Appliance Q?
-    //
-
-    //$(".js-occupancy-comparison").html(compare(2.9, data.occupancy));
-    //var normalDayHeatingHours = getTimeDifference(data.household["3a_heatinghours_normal_on1"], data.household["3a_heatinghours_normal_off1"]);
-    //var altDayHeatingHours = getTimeDifference(data.household["3a_heatinghours_normal_on2"], data.household["3a_heatinghours_normal_off2"]);
-    var hours_off = 0;
-    for (var period in data.temperature.hours_off.weekday)
-        hours_off += data.temperature.hours_off.weekday[period];
-    var normalDayHeatingHours = 24 - hours_off;
-    hours_off = 0;
-    for (var period in data.temperature.hours_off.weekend)
-        hours_off += data.temperature.hours_off.weekend[period];
-    var altDayHeatingHours = 24 - hours_off;
-    var totalHeatingHours = normalDayHeatingHours; // We only take into account weekdays hours, discussion in issue 182
-
-    function compare(num1, num2) {
-        if (num1 > num2) {
-            return "Lower";
-        } else if (num1 < num2) {
-            return "Higher";
-        } else if (num1 == num2) {
-            return "Same";
-        } else {
-            return "N/A";
-        }
-    }
-
-    // time format is "11:30" or "15:00" etc
-    function getTimeDifference(time1, time2) {
-        if (time1 == null || time2 == null) {
-            return false;
-        }
-        // thanks to http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
-        var time1Array = time1.split(":");
-        var time2Array = time2.split(":");
-        // use a constant date (e.g. 2000-01-01) and the desired time to initialize two dates
-
-        var date1 = new Date(2000, 0, 1, time1Array[0], time1Array[1]);
-        var date2 = new Date(2000, 0, 1, time2Array[0], time2Array[1]);
-        // the following is to handle cases where the times are on the opposite side of
-        // midnight e.g. when you want to get the difference between 9:00 PM and 5:00 AM
-
-        if (date2 < date1) {
-            date2.setDate(date2.getDate() + 1);
-        }
-
-        var diff = date2 - date1;
-        // diff is in miliseconds so convert to hours
-        return diff / (1000 * 60 * 60);
-    }
-
-    // $(".js-average-heating-hours").html(totalHeatingHours);
-    $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
-    $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
-    $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
-    $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
-    $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
-    $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
-    // Figure 12: SAP chart
+   // Figure 11: SAP chart
     //
     //
 
@@ -1005,7 +944,7 @@ function carboncoopreport_UpdateUI() {
     $(".js-sap-score-average").html(sapAverage);
     $(".js-sap-rating-average").html(calculateSapRatingFromScore(sapAverage));
 
-    // Figure 13: Comfort Tables.
+    // Figure 12: Comfort Tables.
     //	
     //
     function createComforTable(options, tableID, chosenValue) {
@@ -1134,7 +1073,7 @@ function carboncoopreport_UpdateUI() {
         createComforTable(options, "comfort-table-draughts-winter", project.master.household["6a_draughts_winter"]);
     }
 
-    // Figure 14: Humidity Data
+    // Figure 13: Humidity Data
     // 
     //
     if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 == undefined)
@@ -1148,7 +1087,7 @@ function carboncoopreport_UpdateUI() {
         $(".js-average-humidity").html('When we visited, the relative humidity was ' + averageHumidity + '%. (The ideal range is 40-60%).');
     }
 
-    // Figure 15: Temperature Data
+    // Figure 13: Temperature Data
     // 
     //
     if (data.household.reading_temp1 == undefined && data.household.reading_temp2 == undefined)
@@ -1161,7 +1100,7 @@ function carboncoopreport_UpdateUI() {
         var averageHumidity = 0.5 * (data.household.reading_temp1 + data.household.reading_temp2);
         $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
     }
-    // Figure 16: You also told us...
+    // Figure 13: You also told us...
     // 
     //
     data.household['6c_noise_comment'] == undefined ? $('.js-noise_comment').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-noise_comment').html(data.household['6c_noise_comment']);
@@ -1199,7 +1138,7 @@ function carboncoopreport_UpdateUI() {
         var laundryHabits = laundryHabits.slice(0, -2);
     $(".js-laundry-habits").html(laundryHabits);
 
-    // Figure 15 and Figure 16 and Figure 17: Scenarios Measures    //
+    // Figure 14, 15, 16, 17, 18 and 19: Scenarios Measures    //
     // Calculate Total cost
 
     for (scenario in project) {
@@ -1427,16 +1366,9 @@ function carboncoopreport_UpdateUI() {
     $('#scenario1-measures').hide();
     $('#scenario2-measures').hide();
     $('#scenario3-measures').hide();
-
-    // Figure 18: Scenario 2 Measures
-    //
     //
 
-    // Figure 19: Scenario 3 Measures
-    //
-    //
-
-    // Figures  15, 16, 17, 18, 19, 20 - Display message when scenario is created from another scenario
+    // Figures  14, 15, 16, 17, 18 and 19 - Display message when scenario is created from another scenario
     if (project['scenario1'] != undefined && project['scenario1'].created_from != undefined && project['scenario1'].created_from != 'master')
         $('.scenario1-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario1'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
     if (project['scenario2'] != undefined && project['scenario2'].created_from != undefined && project['scenario2'].created_from != 'master')
@@ -1444,15 +1376,68 @@ function carboncoopreport_UpdateUI() {
     if (project['scenario3'] != undefined && project['scenario3'].created_from != undefined && project['scenario3'].created_from != 'master')
         $('.scenario3-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario3'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
 
-    // Commentary
+    // Commentary -  section 2.3
     if (data.household.commentary != undefined) {
         var commentary = data.household.commentary.replace(/\n/gi, "<br />");
         $('#commentary').html(commentary);
     }
 
-    // Figure 23: Appendix B - data from household questionnaire
+    // Figure 20: Appendix B - Scenario comparison
     //
     //
+     var hours_off = 0;
+    for (var period in data.temperature.hours_off.weekday)
+        hours_off += data.temperature.hours_off.weekday[period];
+    var normalDayHeatingHours = 24 - hours_off;
+    hours_off = 0;
+    for (var period in data.temperature.hours_off.weekend)
+        hours_off += data.temperature.hours_off.weekend[period];
+    var altDayHeatingHours = 24 - hours_off;
+    var totalHeatingHours = normalDayHeatingHours; // We only take into account weekdays hours, discussion in issue 182
+
+    function compare(num1, num2) {
+        if (num1 > num2) {
+            return "Lower";
+        } else if (num1 < num2) {
+            return "Higher";
+        } else if (num1 == num2) {
+            return "Same";
+        } else {
+            return "N/A";
+        }
+    }
+    // time format is "11:30" or "15:00" etc
+    function getTimeDifference(time1, time2) {
+        if (time1 == null || time2 == null) {
+            return false;
+        }
+        // thanks to http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
+        var time1Array = time1.split(":");
+        var time2Array = time2.split(":");
+        // use a constant date (e.g. 2000-01-01) and the desired time to initialize two dates
+
+        var date1 = new Date(2000, 0, 1, time1Array[0], time1Array[1]);
+        var date2 = new Date(2000, 0, 1, time2Array[0], time2Array[1]);
+        // the following is to handle cases where the times are on the opposite side of
+        // midnight e.g. when you want to get the difference between 9:00 PM and 5:00 AM
+
+        if (date2 < date1) {
+            date2.setDate(date2.getDate() + 1);
+        }
+
+        var diff = date2 - date1;
+        // diff is in miliseconds so convert to hours
+        return diff / (1000 * 60 * 60);
+    }
+
+    // $(".js-average-heating-hours").html(totalHeatingHours);
+    $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
+    $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
+    $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
+    $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
+    $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
+    $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
+    
     $(".js-heating-hours-normal").html(normalDayHeatingHours);
     $(".js-heating-hours-alt").html(altDayHeatingHours);
     // Scenario comparison
