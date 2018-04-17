@@ -1385,6 +1385,59 @@ function carboncoopreport_UpdateUI() {
     // Figure 20: Appendix B - Scenario comparison
     //
     //
+     var hours_off = 0;
+    for (var period in data.temperature.hours_off.weekday)
+        hours_off += data.temperature.hours_off.weekday[period];
+    var normalDayHeatingHours = 24 - hours_off;
+    hours_off = 0;
+    for (var period in data.temperature.hours_off.weekend)
+        hours_off += data.temperature.hours_off.weekend[period];
+    var altDayHeatingHours = 24 - hours_off;
+    var totalHeatingHours = normalDayHeatingHours; // We only take into account weekdays hours, discussion in issue 182
+
+    function compare(num1, num2) {
+        if (num1 > num2) {
+            return "Lower";
+        } else if (num1 < num2) {
+            return "Higher";
+        } else if (num1 == num2) {
+            return "Same";
+        } else {
+            return "N/A";
+        }
+    }
+    // time format is "11:30" or "15:00" etc
+    function getTimeDifference(time1, time2) {
+        if (time1 == null || time2 == null) {
+            return false;
+        }
+        // thanks to http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
+        var time1Array = time1.split(":");
+        var time2Array = time2.split(":");
+        // use a constant date (e.g. 2000-01-01) and the desired time to initialize two dates
+
+        var date1 = new Date(2000, 0, 1, time1Array[0], time1Array[1]);
+        var date2 = new Date(2000, 0, 1, time2Array[0], time2Array[1]);
+        // the following is to handle cases where the times are on the opposite side of
+        // midnight e.g. when you want to get the difference between 9:00 PM and 5:00 AM
+
+        if (date2 < date1) {
+            date2.setDate(date2.getDate() + 1);
+        }
+
+        var diff = date2 - date1;
+        // diff is in miliseconds so convert to hours
+        return diff / (1000 * 60 * 60);
+    }
+
+    // $(".js-average-heating-hours").html(totalHeatingHours);
+    $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
+    $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
+    $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
+    $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
+    $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
+    $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
+    
     $(".js-heating-hours-normal").html(normalDayHeatingHours);
     $(".js-heating-hours-alt").html(altDayHeatingHours);
     // Scenario comparison
