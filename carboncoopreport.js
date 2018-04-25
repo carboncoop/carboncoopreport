@@ -25,10 +25,10 @@ function carboncoopreport_initUI() {
 }
 
 function carboncoopreport_UpdateUI() {
-    window.onbeforeprint = function(){
+    window.onbeforeprint = function () {
         hide_sidebar();
     };
-    
+
     var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
 
     // Picture
@@ -716,7 +716,8 @@ function carboncoopreport_UpdateUI() {
             // 'Generation': 'rgb(200,213,203)'
         },
         data: [{label: 'Your Home Now', value: primaryEnergyUseData.master},
-            {label: 'Bills data', value: primaryEnergyUseData.bills}, {label: 'Scenario 1', value: primaryEnergyUseData.scenario1},
+            {label: 'Bills data', value: primaryEnergyUseData.bills},
+            {label: 'Scenario 1', value: primaryEnergyUseData.scenario1},
             {label: 'Scenario 2', value: primaryEnergyUseData.scenario2},
             {label: 'Scenario 3', value: primaryEnergyUseData.scenario3}
         ],
@@ -742,17 +743,34 @@ function carboncoopreport_UpdateUI() {
     var carbonDioxideEmissionsData = [];
     var max = 100;
     if (typeof project["master"] !== "undefined" && typeof project["master"].kgco2perm2 !== "undefined") {
-        carbonDioxideEmissionsData.push({label: "Your home now", value: project["master"].kgco2perm2});
+        var array = [{value: project["master"].kgco2perm2}];
+        if (project['master'].use_generation == 1 && project['master'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['master'].fuel_totals['generation'].annualco2 / data.TFA});
+        carbonDioxideEmissionsData.push({label: "Your home now", value: array});
     }
-    carbonDioxideEmissionsData.push({label: "Bills data", value: project["master"].currentenergy.total_co2m2});
+
+    var array = [{value: project["master"].currentenergy.total_co2m2}, {value: -data.currentenergy.generation.annual_CO2 / data.TFA}];
+    carbonDioxideEmissionsData.push({label: "Bills data", value: array});
+
     if (typeof project["scenario1"] !== "undefined" && typeof project["scenario1"].kgco2perm2 !== "undefined") {
-        carbonDioxideEmissionsData.push({label: "Scenario 1", value: project["scenario1"].kgco2perm2});
+        var array = [{value: project["scenario1"].kgco2perm2}];
+        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario1'].fuel_totals['generation'].annualco2 / data.TFA});
+        carbonDioxideEmissionsData.push({label: "Scenario 1", value: array});
     }
+
     if (typeof project["scenario2"] !== "undefined" && typeof project["scenario2"].kgco2perm2 !== "undefined") {
-        carbonDioxideEmissionsData.push({label: "Scenario 2", value: project["scenario2"].kgco2perm2});
+        var array = [{value: project["scenario2"].kgco2perm2}];
+        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario2'].fuel_totals['generation'].annualco2 / data.TFA});
+        carbonDioxideEmissionsData.push({label: "Scenario 2", value: array});
     }
+
     if (typeof project["scenario3"] !== "undefined" && typeof project["scenario3"].kgco2perm2 !== "undefined") {
-        carbonDioxideEmissionsData.push({label: "Scenario 3", value: project["scenario3"].kgco2perm2});
+        var array = [{value: project["scenario3"].kgco2perm2}];
+        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario3'].fuel_totals['generation'].annualco2 / data.TFA});
+        carbonDioxideEmissionsData.push({label: "Scenario 3", value: array});
     }
 
     carbonDioxideEmissionsData.forEach(function (scenario) {
@@ -791,18 +809,34 @@ function carboncoopreport_UpdateUI() {
     //
     var carbonDioxideEmissionsPerPersonData = [];
     if (typeof project["master"] != "undefined" && typeof project["master"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
-        carbonDioxideEmissionsPerPersonData.push({label: "Your home now", value: project["master"].annualco2 / project["master"].occupancy});
+        var array = [{value: project["master"].annualco2 / project["master"].occupancy}];
+        if (project['master'].use_generation == 1 && project['master'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['master'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
+        carbonDioxideEmissionsPerPersonData.push({label: "Your home now", value: array});
     }
 
-    carbonDioxideEmissionsPerPersonData.push({label: "Bills data", value: project["master"].TFA * project["master"].currentenergy.total_co2m2 / project["master"].occupancy});
-    if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].annualco2 !== "undefined" && typeof project["scenario1"].occupancy !== "undefined") {
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 1", value: project["scenario1"].annualco2 / project["scenario1"].occupancy});
+    var array = [{value: project["master"].TFA * project["master"].currentenergy.total_co2m2 / project["master"].occupancy}, {value: -data.currentenergy.generation.annual_CO2 / project["master"].occupancy}];
+    carbonDioxideEmissionsPerPersonData.push({label: "Bills data", value: array});
+
+    if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
+        var array = [{value: project["scenario1"].annualco2 / project["master"].occupancy}];
+        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario1'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
+        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 1", value: array});
     }
-    if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].annualco2 !== "undefined" && typeof project["scenario2"].occupancy !== "undefined") {
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: project["scenario2"].annualco2 / project["scenario2"].occupancy});
+
+    if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
+        var array = [{value: project["scenario2"].annualco2 / project["master"].occupancy}];
+        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario2'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
+        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: array});
     }
-    if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].annualco2 !== "undefined" && typeof project["scenario3"].occupancy !== "undefined") {
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 3", value: project["scenario3"].annualco2 / project["scenario3"].occupancy});
+    
+    if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
+        var array = [{value: project["scenario3"].annualco2 / project["master"].occupancy}];
+        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario3'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
+        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: array});
     }
 
     var max = 8000;
@@ -880,7 +914,7 @@ function carboncoopreport_UpdateUI() {
     $('#estimated-energy-cost-comparison').html('');
     EstimatedEnergyCosts.draw('estimated-energy-cost-comparison');
 
-   // Figure 11: SAP chart
+    // Figure 11: SAP chart
     //
     //
 
@@ -1385,7 +1419,7 @@ function carboncoopreport_UpdateUI() {
     // Figure 20: Appendix B - Scenario comparison
     //
     //
-     var hours_off = 0;
+    var hours_off = 0;
     for (var period in data.temperature.hours_off.weekday)
         hours_off += data.temperature.hours_off.weekday[period];
     var normalDayHeatingHours = 24 - hours_off;
@@ -1437,7 +1471,7 @@ function carboncoopreport_UpdateUI() {
     $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
     $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
     $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
-    
+
     $(".js-heating-hours-normal").html(normalDayHeatingHours);
     $(".js-heating-hours-alt").html(altDayHeatingHours);
     // Scenario comparison
