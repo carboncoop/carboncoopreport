@@ -513,7 +513,7 @@
         max-width: 40%; } }
 
 .page-wrapper > section {
-    page-break-after: always;
+    //page-break-after: always;
     page-break-inside: avoid; }
 
 :root {
