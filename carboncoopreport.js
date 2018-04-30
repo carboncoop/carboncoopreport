@@ -69,62 +69,63 @@ function carboncoopreport_UpdateUI() {
         "7b_modernisation",
         "7b_health",
     ]
-
-    if (typeof household['7b_carbon'] != "undefined") {
-        priorities.carbon = {
-            title: "Save carbon",
-            order: household['7b_carbon']
+    if (household != undefined) {
+        if (typeof household['7b_carbon'] != "undefined") {
+            priorities.carbon = {
+                title: "Save carbon",
+                order: household['7b_carbon']
+            }
         }
-    }
 
-    if (typeof household['7b_money'] != "undefined") {
-        priorities.money = {
-            title: "Save money",
-            order: household['7b_money'],
+        if (typeof household['7b_money'] != "undefined") {
+            priorities.money = {
+                title: "Save money",
+                order: household['7b_money'],
+            }
         }
-    }
 
-    if (typeof household['7b_comfort'] != "undefined") {
-        priorities.comfort = {
-            title: "Improve comfort",
-            order: household['7b_comfort'],
+        if (typeof household['7b_comfort'] != "undefined") {
+            priorities.comfort = {
+                title: "Improve comfort",
+                order: household['7b_comfort'],
+            }
         }
-    }
 
-    if (typeof household['7b_airquality'] != "undefined") {
-        priorities.airquality = {
-            title: "Improve indoor air quality",
-            order: household['7b_airquality']
+        if (typeof household['7b_airquality'] != "undefined") {
+            priorities.airquality = {
+                title: "Improve indoor air quality",
+                order: household['7b_airquality']
+            }
         }
-    }
 
-    if (typeof household['7b_modernisation'] != "undefined") {
-        priorities.modernisation = {
-            title: "General modernisation",
-            order: household['7b_modernisation'],
+        if (typeof household['7b_modernisation'] != "undefined") {
+            priorities.modernisation = {
+                title: "General modernisation",
+                order: household['7b_modernisation'],
+            }
         }
-    }
 
-    if (typeof household['7b_health'] != "undefined") {
-        priorities.health = {
-            title: "Improve health",
-            order: household['7b_health'],
+        if (typeof household['7b_health'] != "undefined") {
+            priorities.health = {
+                title: "Improve health",
+                order: household['7b_health'],
+            }
         }
-    }
 
-    var sortedPriorities = [];
-    for (var priority in priorities) {
-        sortedPriorities.push([priority, priorities[priority]['order'], priorities[priority]['title']])
-    }
-    sortedPriorities.sort(function (a, b) {
-        return parseInt(a[1]) - parseInt(b[1])
-    })
+        var sortedPriorities = [];
+        for (var priority in priorities) {
+            sortedPriorities.push([priority, priorities[priority]['order'], priorities[priority]['title']])
+        }
+        sortedPriorities.sort(function (a, b) {
+            return parseInt(a[1]) - parseInt(b[1])
+        })
 
-    $("#retrofit-priorities").html('');
-    for (var priority_order = 1; priority_order <= 3; priority_order++) {
-        for (var i = 0; i < sortedPriorities.length; i++) {
-            if (sortedPriorities[i][1] == priority_order)
-                $("#retrofit-priorities").append("<li>" + sortedPriorities[i][1] + ". " + sortedPriorities[i][2] + "</li>");
+        $("#retrofit-priorities").html('');
+        for (var priority_order = 1; priority_order <= 3; priority_order++) {
+            for (var i = 0; i < sortedPriorities.length; i++) {
+                if (sortedPriorities[i][1] == priority_order)
+                    $("#retrofit-priorities").append("<li>" + sortedPriorities[i][1] + ". " + sortedPriorities[i][2] + "</li>");
+            }
         }
     }
 
@@ -831,7 +832,7 @@ function carboncoopreport_UpdateUI() {
             array.push({value: project['scenario2'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
         carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: array});
     }
-    
+
     if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
         var array = [{value: project["scenario3"].annualco2 / project["master"].occupancy}];
         if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
@@ -1000,7 +1001,8 @@ function carboncoopreport_UpdateUI() {
     //var green = "rgb(149, 211, 95)";
 
     // Temperature in Winter
-    if (project.master.household["6a_temperature_winter"] == undefined
+    if (project.master.household == undefined
+            || project.master.household["6a_temperature_winter"] == undefined
             || project.master.household["6a_airquality_winter"] == undefined
             || project.master.household["6a_airquality_summer"] == undefined
             || project.master.household["6a_temperature_summer"] == undefined
@@ -1110,68 +1112,73 @@ function carboncoopreport_UpdateUI() {
     // Figure 13: Humidity Data
     // 
     //
-    if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 == undefined)
-        $(".js-average-humidity").html('There is not enough information, please check section 3 in Household Questionnaire.');
-    else if (data.household.reading_humidity1 != undefined && data.household.reading_humidity2 == undefined)
-        $(".js-average-humidity").html('When we visited, the relative humidity was ' + data.household.reading_humidity1 + ' %. (The ideal range is 40-60%).');
-    else if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 != undefined)
-        $(".js-average-humidity").html(' When we visited, the relative humidity was ' + data.household.reading_humidity2 + '%. (The ideal range is 40-60%).');
-    else {
-        var averageHumidity = 0.5 * (data.household.reading_humidity1 + data.household.reading_humidity2);
-        $(".js-average-humidity").html('When we visited, the relative humidity was ' + averageHumidity + '%. (The ideal range is 40-60%).');
+    if (data.household != undefined) {
+        if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 == undefined)
+            $(".js-average-humidity").html('There is not enough information, please check section 3 in Household Questionnaire.');
+        else if (data.household.reading_humidity1 != undefined && data.household.reading_humidity2 == undefined)
+            $(".js-average-humidity").html('When we visited, the relative humidity was ' + data.household.reading_humidity1 + ' %. (The ideal range is 40-60%).');
+        else if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 != undefined)
+            $(".js-average-humidity").html(' When we visited, the relative humidity was ' + data.household.reading_humidity2 + '%. (The ideal range is 40-60%).');
+        else {
+            var averageHumidity = 0.5 * (data.household.reading_humidity1 + data.household.reading_humidity2);
+            $(".js-average-humidity").html('When we visited, the relative humidity was ' + averageHumidity + '%. (The ideal range is 40-60%).');
+        }
     }
 
     // Figure 13: Temperature Data
     // 
     //
-    if (data.household.reading_temp1 == undefined && data.household.reading_temp2 == undefined)
-        $(".js-average-temp").html('There is not enough information, please check section 3 in Household Questionnaire.');
-    else if (data.household.reading_temp1 != undefined && data.household.reading_temp2 == undefined)
-        $(".js-average-temp").html('When we visited, the temperature was ' + data.household.reading_temp1 + ' °C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
-    else if (data.household.reading_temp1 == undefined && data.household.reading_temp2 != undefined)
-        $(".js-average-temp").html(' When we visited, the temperature was ' + data.household.reading_temp2 + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
-    else {
-        var averageHumidity = 0.5 * (data.household.reading_temp1 + data.household.reading_temp2);
-        $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
+    if (data.household != undefined) {
+        if (data.household.reading_temp1 == undefined && data.household.reading_temp2 == undefined)
+            $(".js-average-temp").html('There is not enough information, please check section 3 in Household Questionnaire.');
+        else if (data.household.reading_temp1 != undefined && data.household.reading_temp2 == undefined)
+            $(".js-average-temp").html('When we visited, the temperature was ' + data.household.reading_temp1 + ' °C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
+        else if (data.household.reading_temp1 == undefined && data.household.reading_temp2 != undefined)
+            $(".js-average-temp").html(' When we visited, the temperature was ' + data.household.reading_temp2 + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium.');
+        else {
+            var averageHumidity = 0.5 * (data.household.reading_temp1 + data.household.reading_temp2);
+            $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
+        }
     }
     // Figure 13: You also told us...
     // 
     //
-    data.household['6c_noise_comment'] == undefined ? $('.js-noise_comment').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-noise_comment').html(data.household['6c_noise_comment']);
-    data.household['6b_problem_locations'] == undefined || data.household['6b_problem_locations'] === '' ? $('.js-problem_locations_daylight').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-problem_locations_daylight').html(data.household['6b_problem_locations']);
-    data.household['6a_problem_locations'] == undefined || data.household['6a_problem_locations'] == '' ? $('.js-problem_locations').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-problem_locations').html(data.household['6a_problem_locations']);
-    data.household['6d_favourite_room'] == undefined || data.household['6d_favourite_room'] == '' ? $('.js-favourite_room').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-favourite_room').html(data.household['6d_favourite_room']);
-    data.household['6d_unloved_rooms'] == undefined || data.household['6d_unloved_rooms'] == '' ? $('.js-unloved_rooms').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-unloved_rooms').html(data.household['6d_unloved_rooms']);
+    if (data.household != undefined) {
+        data.household['6c_noise_comment'] == undefined ? $('.js-noise_comment').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-noise_comment').html(data.household['6c_noise_comment']);
+        data.household['6b_problem_locations'] == undefined || data.household['6b_problem_locations'] === '' ? $('.js-problem_locations_daylight').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-problem_locations_daylight').html(data.household['6b_problem_locations']);
+        data.household['6a_problem_locations'] == undefined || data.household['6a_problem_locations'] == '' ? $('.js-problem_locations').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-problem_locations').html(data.household['6a_problem_locations']);
+        data.household['6d_favourite_room'] == undefined || data.household['6d_favourite_room'] == '' ? $('.js-favourite_room').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-favourite_room').html(data.household['6d_favourite_room']);
+        data.household['6d_unloved_rooms'] == undefined || data.household['6d_unloved_rooms'] == '' ? $('.js-unloved_rooms').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-unloved_rooms').html(data.household['6d_unloved_rooms']);
 
-    var laundryHabits = "";
-    if (typeof data.household["4b_drying_outdoorline"] != "undefined" && data.household["4b_drying_outdoorline"]) {
-        laundryHabits += "outdoor clothes line, ";
-    }
-    if (typeof data.household["4b_drying_indoorrack"] != "undefined" && data.household["4b_drying_indoorrack"]) {
-        laundryHabits += "indoor clothes racks, ";
-    }
-    if (typeof data.household["4b_drying_airingcupboard"] != "undefined" && data.household["4b_drying_airingcupboard"]) {
-        laundryHabits += "airing cupboard, ";
-    }
-    if (typeof data.household["4b_drying_tumbledryer"] != "undefined" && data.household["4b_drying_tumbledryer"]) {
-        laundryHabits += "tumble dryer, ";
-    }
-    if (typeof data.household["4b_drying_washerdryer"] != "undefined" && data.household["4b_drying_washerdryer"]) {
-        laundryHabits += "washer/dryer, ";
-    }
-    if (typeof data.household["4b_drying_radiators"] != "undefined" && data.household["4b_drying_radiators"]) {
-        laundryHabits += "radiators, ";
-    }
-    if (typeof data.household["4b_drying_electricmaiden"] != "undefined" && data.household["4b_drying_electricmaiden"]) {
-        laundryHabits += "electric maiden, ";
-    }
+        var laundryHabits = "";
+        if (typeof data.household["4b_drying_outdoorline"] != "undefined" && data.household["4b_drying_outdoorline"]) {
+            laundryHabits += "outdoor clothes line, ";
+        }
+        if (typeof data.household["4b_drying_indoorrack"] != "undefined" && data.household["4b_drying_indoorrack"]) {
+            laundryHabits += "indoor clothes racks, ";
+        }
+        if (typeof data.household["4b_drying_airingcupboard"] != "undefined" && data.household["4b_drying_airingcupboard"]) {
+            laundryHabits += "airing cupboard, ";
+        }
+        if (typeof data.household["4b_drying_tumbledryer"] != "undefined" && data.household["4b_drying_tumbledryer"]) {
+            laundryHabits += "tumble dryer, ";
+        }
+        if (typeof data.household["4b_drying_washerdryer"] != "undefined" && data.household["4b_drying_washerdryer"]) {
+            laundryHabits += "washer/dryer, ";
+        }
+        if (typeof data.household["4b_drying_radiators"] != "undefined" && data.household["4b_drying_radiators"]) {
+            laundryHabits += "radiators, ";
+        }
+        if (typeof data.household["4b_drying_electricmaiden"] != "undefined" && data.household["4b_drying_electricmaiden"]) {
+            laundryHabits += "electric maiden, ";
+        }
 
-    if (laundryHabits.length === 0)
-        laundryHabits = 'There is not enough information, please check section 4 in Household Questionnaire.'
-    else
-        var laundryHabits = laundryHabits.slice(0, -2);
-    $(".js-laundry-habits").html(laundryHabits);
-
+        if (laundryHabits.length === 0)
+            laundryHabits = 'There is not enough information, please check section 4 in Household Questionnaire.'
+        else
+            var laundryHabits = laundryHabits.slice(0, -2);
+        $(".js-laundry-habits").html(laundryHabits);
+    }
     // Figure 14, 15, 16, 17, 18 and 19: Scenarios Measures    //
     // Calculate Total cost
 
@@ -1411,7 +1418,7 @@ function carboncoopreport_UpdateUI() {
         $('.scenario3-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario3'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
 
     // Commentary -  section 2.3
-    if (data.household.commentary != undefined) {
+    if (data.household != undefined && data.household.commentary != undefined) {
         var commentary = data.household.commentary.replace(/\n/gi, "<br />");
         $('#commentary').html(commentary);
     }
@@ -1465,12 +1472,14 @@ function carboncoopreport_UpdateUI() {
     }
 
     // $(".js-average-heating-hours").html(totalHeatingHours);
-    $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
-    $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
-    $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
-    $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
-    $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
-    $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
+    if (data.household != undefined) {
+        $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
+        $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
+        $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
+        $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
+        $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
+        $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
+    }
 
     $(".js-heating-hours-normal").html(normalDayHeatingHours);
     $(".js-heating-hours-alt").html(altDayHeatingHours);
