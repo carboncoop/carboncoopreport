@@ -1292,12 +1292,18 @@ function carboncoopreport_UpdateUI() {
         html += '<tr><td><strong>Who by: </strong></td><td style="width:35%">' + measure.measure.who_by + '</td>';
         html += '<td style="width:13%"><strong>Key risks: </strong></td><td>' + measure.measure.key_risks + '</td></tr>';
         html += '<tr><td><strong>Benefits: </strong></td><td>' + measure.measure.benefits + '</td>';
-        html += '<td><strong>Dirt and disruption: </strong></td><td>' + measure.measure.disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td></tr>';
-        var perf = measure.measure.performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        if (measure.measure.disruption != undefined)
+            html += '<td><strong>Dirt and disruption: </strong></td><td>' + measure.measure.disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td></tr>';
+        else
+            html += '<td><strong>Dirt and disruption: </strong></td><td></td></tr>';
+        if (measure.measure.performance == undefined)
+            var perf = '';
+        else
+            var perf = measure.measure.performance.replace("WK.m2", "W/m<sup>2</sup>.K")
+                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
+                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
         html += '<tr><td><strong>Performance target: </strong></td><td style="width:35%">' + perf + '</td>';
         html += '<td colspan=2><table  style="width:100%">';
         html += measure.measure.min_cost == undefined ? '' : '<tr><td><strong>Minimum cost</strong></td><td colspan=3>' + measure.measure.min_cost + '</td></tr>';
@@ -1358,16 +1364,23 @@ function carboncoopreport_UpdateUI() {
         else
             html += '<td><div class="text-width-limiter">Whole house</div>';
         html += '</td>';
-        var perf = performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        if (typeof (performance) != 'string')
+            var perf = "";
+        else {
+            var perf = performance.replace("WK.m2", "W/m<sup>2</sup>.K")
+                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
+                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        }
         html += '<td>' + perf + '</td>';
         html += '<td>' + benefits + '</td>';
         html += '<td class="cost">£' + Number(cost).toFixed(0) + '</td>';
         html += '<td>' + who_by + '</td>';
-        html += '<td>' + disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td>';
+        if (typeof (disruption) == 'string')
+            html += '<td>' + disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td>';
+        else
+            html += '<td></td>';
         html += '</tr>';
         $(tableSelector + " tbody").append($(html));
     }
