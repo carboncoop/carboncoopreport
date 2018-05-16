@@ -875,27 +875,46 @@ function carboncoopreport_UpdateUI() {
     var estimatedEnergyCostsData = [];
     var max = 3500;
     if (typeof project["master"] != "undefined" && typeof project["master"].total_cost !== "undefined") {
-        estimatedEnergyCostsData.push({label: "Your home now", value: project["master"].total_cost});
+        var array = [{value: project["master"].total_cost}];
+        if (project['master'].use_generation == 1 && project['master'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['master'].fuel_totals['generation'].annualcost});
+        estimatedEnergyCostsData.push({label: "Your home now", value: array});
         if (max < project["master"].total_cost + 0.3 * project["master"].total_cost)
             max = project["master"].total_cost + 0.3 * project["master"].total_cost;
     }
-    estimatedEnergyCostsData.push({label: "Bills data", value: project["master"].currentenergy.total_cost});
-    if (max < project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost)
-        max = project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost;
+    
+    var array = [{value: project["master"].currentenergy.total_cost}];
+    if (project['master'].currentenergy.generation.annual_savings > 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+        array.push({value: -project['master'].currentenergy.generation.annual_savings});
+    estimatedEnergyCostsData.push({label: "Bills data", value: array});
+    //if (max < project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost)
+    //    max = project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost;
+    
     if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].total_cost !== "undefined") {
-        estimatedEnergyCostsData.push({label: "Scenario 1", value: project["scenario1"].total_cost});
-        if (max < project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost)
-            max = project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost;
+        var array = [{value: project["scenario1"].total_cost}];
+        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario1'].fuel_totals['generation'].annualcost});
+        estimatedEnergyCostsData.push({label: "Scenario 1", value: array});
+        //if (max < project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost)
+          //  max = project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost;
     }
+    
     if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].total_cost !== "undefined") {
-        estimatedEnergyCostsData.push({label: "Scenario 2", value: project["scenario2"].total_cost});
-        if (max < project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost)
-            max = project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost;
+        var array = [{value: project["scenario2"].total_cost}];
+        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario2'].fuel_totals['generation'].annualcost});
+        estimatedEnergyCostsData.push({label: "Scenario 2", value: array});
+        //if (max < project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost)
+          //  max = project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost;
     }
+    
     if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].total_cost !== "undefined") {
-        estimatedEnergyCostsData.push({label: "Scenario 3", value: project["scenario3"].total_cost});
-        if (max < project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost)
-            max = project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost;
+        var array = [{value: project["scenario3"].total_cost}];
+        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+            array.push({value: project['scenario3'].fuel_totals['generation'].annualcost});
+        estimatedEnergyCostsData.push({label: "Scenario 3", value: array});
+        //if (max < project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost)
+          //  max = project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost;
     }
 
     var EstimatedEnergyCosts = new BarChart({
@@ -906,7 +925,7 @@ function carboncoopreport_UpdateUI() {
         fontSize: 33,
         font: "Karla",
         division: 500,
-        chartHigh: max,
+        //chartHigh: max,
         width: 1200,
         chartHeight: 600,
         barGutter: 80, defaultBarColor: 'rgb(157,213,203)',
@@ -1292,12 +1311,18 @@ function carboncoopreport_UpdateUI() {
         html += '<tr><td><strong>Who by: </strong></td><td style="width:35%">' + measure.measure.who_by + '</td>';
         html += '<td style="width:13%"><strong>Key risks: </strong></td><td>' + measure.measure.key_risks + '</td></tr>';
         html += '<tr><td><strong>Benefits: </strong></td><td>' + measure.measure.benefits + '</td>';
-        html += '<td><strong>Dirt and disruption: </strong></td><td>' + measure.measure.disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td></tr>';
-        var perf = measure.measure.performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        if (measure.measure.disruption != undefined)
+            html += '<td><strong>Dirt and disruption: </strong></td><td>' + measure.measure.disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td></tr>';
+        else
+            html += '<td><strong>Dirt and disruption: </strong></td><td></td></tr>';
+        if (measure.measure.performance == undefined)
+            var perf = '';
+        else
+            var perf = measure.measure.performance.replace("WK.m2", "W/m<sup>2</sup>.K")
+                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
+                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
         html += '<tr><td><strong>Performance target: </strong></td><td style="width:35%">' + perf + '</td>';
         html += '<td colspan=2><table  style="width:100%">';
         html += measure.measure.min_cost == undefined ? '' : '<tr><td><strong>Minimum cost</strong></td><td colspan=3>' + measure.measure.min_cost + '</td></tr>';
@@ -1358,16 +1383,23 @@ function carboncoopreport_UpdateUI() {
         else
             html += '<td><div class="text-width-limiter">Whole house</div>';
         html += '</td>';
-        var perf = performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        if (typeof (performance) != 'string')
+            var perf = "";
+        else {
+            var perf = performance.replace("WK.m2", "W/m<sup>2</sup>.K")
+                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
+                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
+        }
         html += '<td>' + perf + '</td>';
         html += '<td>' + benefits + '</td>';
         html += '<td class="cost">£' + Number(cost).toFixed(0) + '</td>';
         html += '<td>' + who_by + '</td>';
-        html += '<td>' + disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td>';
+        if (typeof (disruption) == 'string')
+            html += '<td>' + disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td>';
+        else
+            html += '<td></td>';
         html += '</tr>';
         $(tableSelector + " tbody").append($(html));
     }
