@@ -934,71 +934,7 @@ function carboncoopreport_UpdateUI() {
     $('#estimated-energy-cost-comparison').html('');
     EstimatedEnergyCosts.draw('estimated-energy-cost-comparison');
 
-    // Figure 11: SAP chart
-    //
-    //
-
-    function calculateSapRatingFromScore(score) {
-
-        if (!score) {
-            return false;
-        }
-
-        var sapRatings = {
-            "90": "A",
-            "80": "B",
-            "70": "C", "60": "D",
-            "50": "E",
-            "40": "F",
-            "30": "G",
-        }
-        var scoreFlooredToNearestTen = Math.floor(score / 10) * 10;
-        //Lowest band goes all the way to zero, but push up to 30 in order to draw graph
-        if (scoreFlooredToNearestTen < 30) {
-            scoreFlooredToNearestTen = 30;
-        }
-        return sapRatings[scoreFlooredToNearestTen];
-    }
-
-
-    if (typeof project["master"] != "undefined" && typeof project["master"]["SAP"] !== "undefined") {
-        var sapNow = Math.round(project["master"]["SAP"]["rating"]);
-    } else {
-        var sapNow = false;
-    }
-
-    if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"]["SAP"] !== "undefined") {
-        var sapScenario1 = Math.round(project["scenario1"]["SAP"]["rating"]);
-    } else {
-        var sapScenario1 = false;
-    }
-
-    if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"]["SAP"] !== "undefined") {
-        var sapScenario2 = Math.round(project["scenario2"]["SAP"]["rating"]);
-    } else {
-        var sapScenario2 = false;
-    }
-    if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"]["SAP"] !== "undefined") {
-        var sap2050 = Math.round(project["scenario3"]["SAP"]["rating"]);
-    } else {
-        var sap2050 = false;
-    }
-
-    var sapAverage = 59;
-    // var sap2050 = Math.round(project["scenario3"]["SAP"]["rating"]);
-
-    $(".js-sap-score-now").html(sapNow);
-    $(".js-sap-rating-now").html(calculateSapRatingFromScore(sapNow));
-    $(".js-sap-score-scenario1").html(sapScenario1);
-    $(".js-sap-rating-scenario1").html(calculateSapRatingFromScore(sapScenario1));
-    $(".js-sap-score-scenario2").html(sapScenario2);
-    $(".js-sap-rating-scenario2").html(calculateSapRatingFromScore(sapScenario2));
-    $(".js-sap-score-2050").html(sap2050);
-    $(".js-sap-rating-2050").html(calculateSapRatingFromScore(sap2050));
-    $(".js-sap-score-average").html(sapAverage);
-    $(".js-sap-rating-average").html(calculateSapRatingFromScore(sapAverage));
-
-    // Figure 12: Comfort Tables.
+    // Figure 11: Comfort Tables.
     //	
     //
     function createComforTable(options, tableID, chosenValue) {
@@ -1128,7 +1064,7 @@ function carboncoopreport_UpdateUI() {
         createComforTable(options, "comfort-table-draughts-winter", project.master.household["6a_draughts_winter"]);
     }
 
-    // Figure 13: Humidity Data
+    // Figure 12: Humidity Data
     // 
     //
     if (data.household != undefined) {
@@ -1144,7 +1080,7 @@ function carboncoopreport_UpdateUI() {
         }
     }
 
-    // Figure 13: Temperature Data
+    // Figure 12: Temperature Data
     // 
     //
     if (data.household != undefined) {
@@ -1159,7 +1095,7 @@ function carboncoopreport_UpdateUI() {
             $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
         }
     }
-    // Figure 13: You also told us...
+    // Figure 12: You also told us...
     // 
     //
     if (data.household != undefined) {
@@ -1198,7 +1134,7 @@ function carboncoopreport_UpdateUI() {
             var laundryHabits = laundryHabits.slice(0, -2);
         $(".js-laundry-habits").html(laundryHabits);
     }
-    // Figure 14, 15, 16, 17, 18 and 19: Scenarios Measures    //
+    // Figure 13, 14, 15, 17, 18 and 19: Scenarios Measures    //
     // Calculate Total cost
 
     for (scenario in project) {
