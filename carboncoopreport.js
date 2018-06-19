@@ -1258,6 +1258,8 @@ function carboncoopreport_UpdateUI() {
                     .replace("W/K.m2", "W/m<sup>2</sup>.K")
                     .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
                     .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('W/msup2/sup.K',' W/m<sup>2</sup>.K')
+                    .replace('msup3/sup/msup2/sup.hr50pa','m<sup>3</sup>/m<sup>2</sup>.hr50pa')
                     .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
         html += '<tr><td><strong>Performance target: </strong></td><td style="width:35%">' + perf + '</td>';
         html += '<td colspan=2><table  style="width:100%">';
@@ -1326,6 +1328,8 @@ function carboncoopreport_UpdateUI() {
                     .replace("W/K.m2", "W/m<sup>2</sup>.K")
                     .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
                     .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
+                    .replace('W/msup2/sup.K',' W/m<sup>2</sup>.K')
+                    .replace('msup3/sup/msup2/sup.hr50pa','m<sup>3</sup>/m<sup>2</sup>.hr50pa')
                     .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
         }
         html += '<td>' + perf + '</td>';
