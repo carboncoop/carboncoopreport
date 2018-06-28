@@ -1,13 +1,13 @@
 console.log('debug cafs.js');
 
 var result_html = "";
-$.ajax({url: jspath + "reports/cafs/carboncoopreport.html", async: false, cache: false, success: function (data) {
+$.ajax({url: jspath + "reports/cafs/carboncoop.html", async: false, cache: false, success: function (data) {
         result_html = data;
     }});
 $('#content').html(result_html);
 
 $.ajax({
-    url: jspath + "reports/cafs/carboncoopreport.js",
+    url: jspath + "reports/cafs/carboncoop.js",
     dataType: 'script',
     async: false
 });
