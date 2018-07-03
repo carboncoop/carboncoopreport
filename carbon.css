@@ -593,6 +593,7 @@
     .house-heatloss-diagrams-wrapper p {
         display: block !important;
     }
+    .scenario-name{display:none}
 }
 
 /*# sourceMappingURL=carbon.css.map */
