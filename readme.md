@@ -10,6 +10,7 @@ Users are not allowed to distribute derivative works based on it.
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY, without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 
 ## Installation
-`git clone https://github.com/carboncoop/carboncoopreport carboncoop`
+`git clone https://github.com/carboncoop/carboncoopreport cumbriaactionforsustainability`
+`git checkout cafs`
 
-The report will be accessible for MHEP users that are members of an organization called "Carbon Coop"
+The report will be accessible for MHEP users that are members of an organization called "Cumbria Action for Sustainability"
