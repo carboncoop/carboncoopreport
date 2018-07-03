@@ -21,7 +21,7 @@ function cumbriaactionforsustainability_UpdateUI() {
     carboncoop_UpdateUI();
 
 // Insert Carbon Co-op logo
-    $('#logo-in-report').attr("src", path + "Modules/assessment/img-assets/carbonco-op_logo.jpg").attr('alt', 'Carbon Co-op logo');
+    $('#logo-in-report').attr("src", path + "Modules/assessment/reports/cumbriaactionforsustainability/img/CAfS_Logo_CMYK.jpg").attr('alt', 'Carbon Co-op logo');
 
 
 // Specific report content for CAfS
@@ -49,7 +49,7 @@ function cumbriaactionforsustainability_UpdateUI() {
             }");
 
 // Logos in cover page
-    $('#extra_logo').attr("src", path + "Modules/assessment/img-assets/CAfS_Logo_CMYK.jpg").attr('alt', 'Cumbria Action for Sustainability logo').css('width', '150px');
+    $('#extra_logo').attr("src", path + "Modules/assessment/reports/cumbriaactionforsustainability/img/CAfS_Logo_CMYK.jpg").attr('alt', 'Cumbria Action for Sustainability logo').css('width', '150px');
     $('#cover').append('<img id="bgltr_logo" class="printable-inline" style="margin-left: 150px; width: 100px;" src="' + path + 'Modules/assessment/img-assets/hi_big_e_min_blue.jpg" />')
 
 // Extra info in cover page
