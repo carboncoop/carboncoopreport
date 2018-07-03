@@ -1,5 +1,5 @@
-console.log('debug carboncoopreport.js');
-function carboncoopreport_initUI() {
+console.log('debug carboncoop.js');
+function carboncoop_initUI() {
 
     data = project['master'];
     WebFontConfig = {
@@ -7,7 +7,7 @@ function carboncoopreport_initUI() {
     };
     (function () {
         var wf = document.createElement('script');
-        wf.src = jspath + 'reports/carboncoopreport/Lib/webfont.js';
+        wf.src = jspath + 'reports/carboncoop/Lib/webfont.js';
         wf.type = 'text/javascript';
         wf.async = 'true';
         var s = document.getElementsByTagName('script')[0];
@@ -20,11 +20,11 @@ function carboncoopreport_initUI() {
     });
     var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
     WebFontConfig.active = function () {
-        //  carboncoopreport_UpdateUI();
+        //  carboncoop_UpdateUI();
     };
 }
 
-function carboncoopreport_UpdateUI() {
+function carboncoop_UpdateUI() {
     window.onbeforeprint = function () {
         hide_sidebar();
     };
@@ -43,7 +43,7 @@ function carboncoopreport_UpdateUI() {
         $("#bound").css("width", "1200px"); // set to width to optimum to avoid antialiasing
         $(".js-printer-friendly-link").css("display", "none");
     } else {
-        $(".js-printer-friendly-link").attr("href", path + "assessment/print?id=" + projectid + "#master/carboncoopreport");
+        $(".js-printer-friendly-link").attr("href", path + "assessment/print?id=" + projectid + "#master/carboncoop");
     }
 
     // Organization
