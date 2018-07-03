@@ -1,24 +1,24 @@
-console.log('debug cafs.js');
+console.log('debug cumbriaactionforsustainability.js');
 
 var result_html = "";
-$.ajax({url: jspath + "reports/cafs/carboncoop.html", async: false, cache: false, success: function (data) {
+$.ajax({url: jspath + "reports/cumbriaactionforsustainability/carboncoop.html", async: false, cache: false, success: function (data) {
         result_html = data;
     }});
 $('#content').html(result_html);
 
 $.ajax({
-    url: jspath + "reports/cafs/carboncoop.js",
+    url: jspath + "reports/cumbriaactionforsustainability/carboncoop.js",
     dataType: 'script',
     async: false
 });
 
 
-function cafs_initUI() {
-   carboncoopreport_initUI();
+function cumbriaactionforsustainability_initUI() {
+   carboncoop_initUI();
 }
 
-function cafs_UpdateUI() {
-    carboncoopreport_UpdateUI();
+function cumbriaactionforsustainability_UpdateUI() {
+    carboncoop_UpdateUI();
 
 // Insert Carbon Co-op logo
     $('#logo-in-report').attr("src", path + "Modules/assessment/img-assets/carbonco-op_logo.jpg").attr('alt', 'Carbon Co-op logo');
