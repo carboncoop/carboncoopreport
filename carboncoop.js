@@ -8,6 +8,7 @@ function carboncoop_initUI() {
     add_featured_image();
     add_date();
     add_prioirities_figure(scenarios);
+    add_scenario_names(scenarios);
     add_performance_summary_figure(scenarios);
     add_heat_loss_summary_figure(scenarios);
     add_heat_balance_figure(scenarios);
@@ -136,6 +137,13 @@ function add_prioirities_figure(scenarios) {
             }
         }
     }
+}
+function add_scenario_names(scenarios) {
+    scenarios.forEach(function (scenario) {
+        if (scenario != 'master')
+            $('.scenarios-list').append('<li><p>Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</p></li>');
+    })
+
 }
 function add_performance_summary_figure(scenarios) {
     // Quick overview/summary - Benchmarking Bar Charts. Need to ensure that all scenarios displayed, not just one as on current graph.
@@ -900,14 +908,17 @@ function add_measures_summary_tables(scenarios) {
     var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
     scenarios.forEach(function (scenario, index) {
         if (scenario != 'master') {
-            var html = '<div class="no-break">';
-            html += '<h4 class="top-border-title title-margin-bottom break-before ">Figure 13' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
+            if (index == 1)
+                var html = '<div>';
+            else
+                var html = '<div class="no-break">';
+            html += '<h4 class="top-border-title title-margin-bottom">Figure 13' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
             if (project[scenario].created_from != undefined && project[scenario].created_from != 'master')
                 html += '<p>This scenario assumes the measures in Scenario ' + project[scenario].created_from.split('scenario')[1] + ' have already been carried out and adds to them</p>';
             html += '<p>Total cost of the scenario £' + Math.round(measures_costs(scenario) / 10) * 10 + ' </p>';
             html += '<div class="five-col-table-wrapper">' + scenarios_measures_summary[scenario] + '</div>';
             html += '</div>';
-            html = html.replace('measures-summary-table', 'measures-summary-table no-break');
+            //html = html.replace('measures-summary-table', 'measures-summary-table no-break');
             $('#ccop-report-measures-summary-tables').append(html);
         }
     });
@@ -922,8 +933,11 @@ function add_measures_complete_tables(scenarios) {
     var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
     scenarios.forEach(function (scenario, index) {
         if (scenario != 'master') {
-            var html = '<div class="no-break">';
-            html += '<h4 class="top-border-title title-margin-bottom break-before">Figure 14' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
+            if (index == 1)
+                var html = '<div>';
+            else
+                var html = '<div class="no-break">';
+            html += '<h4 class="top-border-title title-margin-bottom">Figure 14' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
             if (project[scenario].created_from != undefined && project[scenario].created_from != 'master')
                 html += '<p>This scenario assumes the measures in Scenario ' + project[scenario].created_from.split('scenario')[1] + ' have already been carried out and adds to them</p>';
             html += '<p>Total cost of the scenario £' + Math.round(measures_costs(scenario) / 10) * 10 + ' </p>';
@@ -1164,6 +1178,6 @@ function createComforTable(options, tableID, chosenValue) {
 
 
 function carboncoop_UpdateUI() {
-   
+
 }
 

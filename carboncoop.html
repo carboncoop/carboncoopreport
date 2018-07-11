@@ -81,6 +81,7 @@
             padding:0px;
         }
         .carbon-report-wrapper .measures-list table, 
+        .carbon-report-wrapper .complete-measures-table, 
         .carbon-report-wrapper .js-scenario-comparison table,
         .carbon-report-wrapper .js-scenario-comparison p{
             font-size: 9pt;            
@@ -136,7 +137,7 @@
                         <p>
                             <span key='data.household.1a_addressline1'></span>
                         </p>
-                        <span class="top-border-title bolded">Post Code</span>
+                        <span class="top-border-titoutput-scenario1-namele bolded">Post Code</span>
                         <p><span key='data.household.1a_postcode'></span></p>
                         <span class="top-border-title bolded">Date (Survey)</span>
                         <p><span key='data.household.assessment_date'></span></p>
@@ -187,14 +188,10 @@
                 <ul id='retrofit-priorities' style="margin-left:50px"></ul>
             </div>
 
-            <p class="break-before">Your report is made up of three sections. </p>
+            <p class="" style="margin-top: 35px">Your report is made up of three sections. </p>
             <p>In <b>Section</b> 1.0 we measure the current performance of your home and model this against the UK average, the potential impact of the scenarios suggested in this report and Carbon Co-op's targets for energy and carbon emissions reductions. </p>
             <p>The scenarios we developed in this report are:</p>
-            <ul class="right-align-item-list">
-                <li style="margin-top:0"><p style="margin:6px">Scenario 1: <span class='output-scenario1-name'></span></p></li>
-                <li style="margin-top:0"><p style="margin:6px">Scenario 2: <span class='output-scenario2-name'></span></p></li>
-                <li style="margin-top:0"><p style="margin:6px">Scenario 3: <span class='output-scenario3-name'></span></p></li>
-            </ul>
+            <ul class="right-align-item-list scenarios-list"></ul>
             <p>Your headline results are: </p>
             <div class="highlight-box pink-highlight">
                 <h4 class="top-border-title">Figure 2. Performance Summary</h4>
@@ -381,7 +378,7 @@
             </section>
 
             <section>
-                <h3 class="top-border-title title-margin-top title-margin-bottom">1.7 Comfort and Health</h3>
+                <h3 class="top-border-title title-margin-top title-margin-bottom break-before">1.7 Comfort and Health</h3>
                 <p>The link between the built environment, our comfort and health is well established. Living in a home that is too cold, hot, damp, dry or draughty can affect your physical and mental wellbeing. This may trigger or worsen respiratory and cardiovascular problems, skin conditions, trips and falls, anxiety and depression.</p> 
                 <p>When calculating heating demand, SAP assumes a temperature of 21°C in your living area for a set number of hours. In reality, your living area may be warmer or cooler than this (for longer or shorter periods) because we all have different perceptions of what is comfortable as well as different occupancy patterns. This will also be affected by the efficiency of the building fabric and your heating system.</p>
                 <p>This is why we collect information about you as householders. Understanding your perceptions of comfort, as well as how you use the spaces within your home, allows us to tailor the recommendations with your comfort and health in mind.</p>
@@ -503,11 +500,7 @@
 
             <h3 class="top-border-title title-margin-top title-margin-bottom">2.1 Scenarios</h3>
             <p>Figures 13, 14 and 15 on the following pages summarise our recommendations for planning retrofit works in your home. More detailed information on the nature of the works, and other things you may need to think about, are contained within the tables in Appendix A. We have mapped out three scenarios:</p>
-            <ul class="right-align-item-list">
-                <li><p>Scenario 1: <span class='output-scenario1-name'></span></p></li>
-                <li><p>Scenario 2: <span class='output-scenario2-name'></span></p></li>
-                <li><p>Scenario 3: <span class='output-scenario3-name'></span></p></li>
-            </ul>
+            <ul class="right-align-item-list scenarios-list"></ul>
             <p>Following these scenarios, we have also included a commentary that gives more specific guidance based on the assessment we’ve carried out on your home.</p>
             <p>We focus first on quick wins and the things you told us are most important to you. We take a whole house approach, rather than considering single measures in isolation.</p> 
             <p>We consider factors other than energy use and finances that may be important to you. For example, comfort, ventilation and indoor air quality. We also consider the level of disruption involved in carrying out various building works.</p> 
@@ -552,7 +545,7 @@
                 </li>
             </ol>
 
-            <h3 class="title-extra-margin-top ">Summary of measures</h3>
+            <h3 class="title-extra-margin-top break-before">Summary of measures</h3>
             <div id="ccop-report-measures-summary-tables"></div>
 
             <div style="margin:0px" class="no-break">
