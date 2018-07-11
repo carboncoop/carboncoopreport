@@ -69,11 +69,11 @@
         .carbon-report-wrapper .title-margin-top{
             margin-top:1cm;
         }
-        .carbon-report-wrapper table.js-measures1-summary td,.carbon-report-wrapper table.js-measures2-summary td,.carbon-report-wrapper table.js-measures3-summary td{
+        .carbon-report-wrapper table.measures-summary-table td{
             font-size: 8pt;
             padding:5px;
         }
-        .carbon-report-wrapper table.js-measures1-summary th,.carbon-report-wrapper table.js-measures2-summary th,.carbon-report-wrapper table.js-measures3-summary th{
+        .carbon-report-wrapper table.measures-summary-table th{
             font-size: 11pt;
         }
         .carbon-report-wrapper .highlight-box, .carbon-report-wrapper .bar-chart-container{
@@ -81,11 +81,11 @@
             padding:0px;
         }
         .carbon-report-wrapper .measures-list table, 
-        .carbon-report-wrapper #js-scenario1-comparison table, .carbon-report-wrapper #js-scenario2-comparison table, .carbon-report-wrapper #js-scenario3-comparison table,
-        .carbon-report-wrapper #js-scenario1-comparison p,.carbon-report-wrapper #js-scenario2-comparison p,.carbon-report-wrapper #js-scenario3-comparison p{
+        .carbon-report-wrapper .js-scenario-comparison table,
+        .carbon-report-wrapper .js-scenario-comparison p{
             font-size: 9pt;            
         }
-        .carbon-report-wrapper #js-scenario1-comparison h3,.carbon-report-wrapper #js-scenario2-comparison h3,.carbon-report-wrapper #js-scenario3-comparison h3{
+        .carbon-report-wrapper .js-scenario-comparison h3{
             font-size: 11pt;            
         }
         thead {
@@ -256,7 +256,7 @@
                 <p>Figure 3 shows how your home loses heat, modelled against the various scenarios created in this report.</p>
 
                 <div class="highlight-box pink-highlight" style="page-break-inside: auto;">
-                    <h4 class="top-border-title title-margin-bottom ">Figure 3. Performance Summary</h4>
+                    <h4 class="top-border-title title-margin-bottom ">Figure 3. Heat Loss Summary</h4>
                     <div class='house-heatloss-diagrams-wrapper js-house-heatloss-diagrams-wrapper'>	
                         <ul class='js-house-heatloss-diagram-picker house-heatloss-diagram-picker'>
                             <li><span class='selected' data-scenario='master'>Your home now</span></li>
@@ -301,7 +301,7 @@
 
             <section class="break-before">
                 <h3 class="top-border-title title-margin-top title-margin-bottom">1.2 Space heating demand</h3>
-                Figure 5 – New Text
+                Figure 5
                 <p>To keep your home warm, the gap between heat losses and heat gains in your home needs to be bridged by your heating system. The amount of energy needed to do this is known as space heating demand.</p>
                 <p>Space Heating Demand is measured in kilowatt-hours per square metre per year, so that different sizes of building can be compared. Space heating demand takes into account all the heat loss and heat gain factors described in 1.1 above. It also takes into account the efficiency of your building fabric, and any internal and solar gains, but also the type of controls on your heating system, the number of hours you choose to heat your home for, and your thermostat setting. It does not cover any other energy uses, such as lighting, hot water or electricity use for fans, pumps and appliances.</p>
                 <p>Space Heating Demand is affected by the shape and volume of your home. The more complicated the shape of your home, and the greater the proportion of exposed surface area to floor area, the higher your Space Heating Demand is likely to be. A complicated detached house will usually have a higher space heating demand than an apartment with only one or two external walls, even if their construction is similar. </p>
@@ -552,31 +552,8 @@
                 </li>
             </ol>
 
-
-            <h3 class="top-border-title title-extra-margin-top title-margin-bottom break-before">Figure 13 Scenario 1: <span class='output-scenario1-name'></span></h3>
-            <p class="scenario1-inheritance" style="display:none"></p>
-            <p>Total cost of the scenario <span id="tota-cost-scenario1"></span></p> 
-            <div class="five-col-table-wrapper">
-                <table class="five-col-table js-measures1-summary" >
-                </table>
-            </div>
-
-
-            <h3 class="top-border-title title-margin-bottom break-before">Figure 14 Scenario 2: <span class='output-scenario2-name'></span></h3>
-            <p class="scenario2-inheritance" style="display:none"></p>
-            <p>Total cost of the scenario <span id="tota-cost-scenario2"></span></p> 
-            <div class="five-col-table-wrapper">
-                <table class="five-col-table js-measures2-summary" >
-                </table>
-            </div>
-
-            <h3 class="top-border-title title-margin-bottom break-before">Figure 15 Scenario 3: <span class='output-scenario3-name'></span></h3>
-            <p class="scenario3-inheritance" style="display:none"></p>
-            <p>Total cost of the scenario <span id="tota-cost-scenario3"></span></p> 
-            <div class="five-col-table-wrapper">
-                <table class="five-col-table js-measures3-summary">
-                </table>
-            </div>
+            <h3 class="title-extra-margin-top ">Summary of measures</h3>
+            <div id="ccop-report-measures-summary-tables"></div>
 
             <div style="margin:0px" class="no-break">
                 <h3 class="top-border-title title-margin-top title-margin-bottom no-break-after">2.3 Commentary</h3>
@@ -640,14 +617,6 @@
         <!-- (Appendices) -->
 
         <style>
-
-            .measures-list > table{
-                margin-bottom:20px;
-                border-bottom: 1px dashed rgb(228,27,58);
-            }
-            .measures-list table td{
-                padding-bottom:10px
-            }
         </style>
 
         <section>
@@ -655,54 +624,13 @@
             <div class="section-title title-margin-top">
                 <h2>Appendices</h2>
             </div>
-            <h3 class="top-border-title title-margin-top title-margin-bottom">Appendix A: Scenario Measures Complete Table</h3>
-
-            <h4 class="top-border-title title-margin-top" style="padding-top: 15px">Figure 16: Scenario 1 Measures Complete Table</h4>
-            <p class="scenario1-inheritance" style="display:none"></p>
-
-            <div class="five-col-table-wrapper">
-                <table class="data-table" id='scenario1-measures'>					 
-                </table>
-            </div>		
-            <div class="measures-list" id="scenario1-measures-list"></div>
-
-
-            <h4 class="top-border-title title-margin-top break-before" style="padding-top: 15px">Figure 17: Scenario 2 Measures Complete Table</h4>
-            <p class="scenario2-inheritance" style="display:none"></p>
-
-            <div class="five-col-table-wrapper">
-                <table class="data-table" id='scenario2-measures'>					 
-                </table>
-            </div>
-            <div class="measures-list" id="scenario2-measures-list"></div>
-
-
-            <h4 class="top-border-title title-margin-top break-before" style="padding-top: 15px">Figure 18: Scenario 3 Measures Complete Table</h4>
-            <p class="scenario3-inheritance" style="display:none"></p>
-
-            <div class="five-col-table-wrapper">
-                <table class="data-table" id='scenario3-measures'>					 
-                </table>
-            </div>
-            <div class="measures-list" id="scenario3-measures-list"></div>
+            <h3 class="top-border-title title-margin-top title-margin-bottom">Appendix A: Scenario Measures Complete Tables</h3>
+            <div id="ccop-report-measures-complete-tables"></div>
 
             <section class="break-before break-after">
                 <h3 class="top-border-title title-margin-top title-margin-bottom">Appendix B: Scenario comparison</h3>
                 <p>Based on the survey we completed of your home, and the results generated using My Home Energy Planner, here we provide comparisons across fabric condition; heating and hot water systems; ventilation; lighting; appliances and cooking; and renewables.</p> 
-
-                <div class="highlight-box pink-highlight" style="page-break-before:avoid; page-break-inside: auto">
-                    <h4 class="top-border-title title-margin-bottom ">Figure 19a: Master/Scenario 1 Comparison Table</h4>
-                    <div id="js-scenario1-comparison"></div>
-                </div>
-                <div class="highlight-box pink-highlight">
-                    <h4 class="top-border-title title-margin-bottom ">Figure 19b: Master/Scenario 2 Comparison Table</h4>
-                    <div id="js-scenario2-comparison"></div>
-                </div>
-                <div class="highlight-box pink-highlight">
-                    <h4 class="top-border-title title-margin-bottom ">Figure 19c: Master/Scenario 3 Comparison Table</h4>
-                    <div id="js-scenario3-comparison"></div>
-                </div>
-
+                <div id="comparison-tables"></div>                
             </section>
 
             <section>

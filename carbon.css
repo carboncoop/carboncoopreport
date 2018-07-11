@@ -228,29 +228,29 @@
 .carbon-report-wrapper .three-col-table .half-width:before, .carbon-report-wrapper .three-col-table .half-width:after {
     left: 0;
     right: 15px; }
-.carbon-report-wrapper .five-col-table {
+.carbon-report-wrapper .five-col-table, .carbon-report-wrapper .measures-summary-table{
     border-spacing: 15px;
     border-collapse: separate;
     text-align: left;
     margin: 0 -15px 1em -15px; }
-.carbon-report-wrapper .five-col-table .highlighted-col {
+.carbon-report-wrapper .five-col-table .highlighted-col, .carbon-report-wrapper .measures-summary-table td:first-child{
     color: #e41b3a; }
-.carbon-report-wrapper .five-col-table th {
+.carbon-report-wrapper .five-col-table th, .carbon-report-wrapper .measures-summary-table th{
     color: #e41b3a;
     font-weight: bold;
     border-top: 2px solid #e41b3a;
     padding-top: 7px;
     padding-bottom: 15px; }
-.carbon-report-wrapper .five-col-table td {
+.carbon-report-wrapper .five-col-table td, .carbon-report-wrapper .measures-summary-table td{
     border-bottom: 1px dashed #e41b3a;
     padding-bottom: 15px; }
-.carbon-report-wrapper .five-col-table .text-width-limiter {
+.carbon-report-wrapper .five-col-table .text-width-limiter, .carbon-report-wrapper .measures-summary-table  .text-width-limiter{
     max-width: 450px; }
-.carbon-report-wrapper .five-col-table .highlighted-col {
+.carbon-report-wrapper .five-col-table .highlighted-col, .carbon-report-wrapper .measures-summary-table td:first-child{
     width: 15%; }
-.carbon-report-wrapper .five-col-table .cost {
+.carbon-report-wrapper .five-col-table .cost, .carbon-report-wrapper .measures-summary-table .cost{
     width: 5%; }
-.carbon-report-wrapper .five-col-table tr:last-of-type td {
+.carbon-report-wrapper .five-col-table tr:last-of-type td, .carbon-report-wrapper .measures-summary-table  tr:last-of-type td{
     border-bottom: 0; }
 .carbon-report-wrapper .table-sub-total {
     border-top: 2px solid #e41b3a;
@@ -264,6 +264,17 @@
     font-weight: bold; }
 .carbon-report-wrapper .five-col-table-wrapper {
     margin-bottom: 2em; }
+#ccop-report-measures-summary-tables h4, #ccop-report-measures-complete-tables h4{
+    font-size: 22px;
+    margin: 25px 0 16px;
+}            
+.carbon-report-wrapper .complete-measures-table{
+    margin-bottom:20px;
+    border-bottom: 1px dashed rgb(228,27,58);
+}
+.carbon-report-wrapper .complete-measures-table td{
+    padding-bottom:10px
+}
 @media only screen and (max-width: 760px), (min-device-width: 768px) and (max-device-width: 1024px) {
     .carbon-report-wrapper .five-col-table, .carbon-report-wrapper .three-col-table {
         border-spacing: 0;
@@ -600,6 +611,6 @@
 
 
 #topgraphic #measures-costs{
-  text-align:right;
-  margin-top:-60px
+    text-align:right;
+    margin-top:-60px
 }

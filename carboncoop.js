@@ -1,7 +1,31 @@
 console.log('debug carboncoop.js');
 function carboncoop_initUI() {
-
     data = project['master'];
+    var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
+
+    load_font();
+    add_events();
+    add_featured_image();
+    add_date();
+    add_prioirities_figure(scenarios);
+    add_performance_summary_figure(scenarios);
+    add_heat_loss_summary_figure(scenarios);
+    add_heat_balance_figure(scenarios);
+    add_space_heating_demand_figure(scenarios);
+    add_energy_demand_figure(scenarios);
+    add_primary_energy_usage_figure(scenarios);
+    add_carbon_dioxide_per_m2_figure(scenarios);
+    add_carbon_dioxide_per_person_figure(scenarios);
+    add_energy_costs_figure(scenarios);
+    add_comfort_tables(scenarios);
+    add_health_data(scenarios);
+    add_measures_summary_tables(scenarios);
+    add_commentary();
+    add_measures_complete_tables(scenarios);
+    add_comparison_tables(scenarios);
+}
+
+function load_font() {
     WebFontConfig = {
         google: {families: ['Karla:400,400italic,700:latin']}
     };
@@ -13,50 +37,34 @@ function carboncoop_initUI() {
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(wf, s);
     })();
-    $.ajax({
-        url: jspath + "views/compare.js",
-        dataType: 'script',
-        async: false
-    });
-    var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
-    WebFontConfig.active = function () {
-        //  carboncoop_UpdateUI();
-    };
 }
-
-function carboncoop_UpdateUI() {
+function add_events() {
     window.onbeforeprint = function () {
         hide_sidebar();
     };
-
-    var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
-
-    // Picture
+    $("body").on("click", ".js-house-heatloss-diagram-picker span", function (e) {
+        var scenario = $(this).data("scenario");
+        $(".js-house-heatloss-diagram-picker span").removeClass("selected");
+        $(this).addClass("selected");
+        $(".js-house-heatloss-diagrams-wrapper .centered-house").css({
+            "display": "none"
+        });
+        $("div[data-scenario-diagram='" + scenario + "']").css("display", "block");
+    });
+}
+function add_featured_image() {
     if (data.featuredimage) {
         $(".js-home-image-wrapper").html('');
         var img = $('<img class="home-image">').attr("src", path + "Modules/assessment/images/" + projectid + "/" + data.featuredimage)
         img.appendTo(".js-home-image-wrapper");
     }
-
-    // I don't think this does anything
-    if (printmode == true) {
-        $("#bound").css("width", "1200px"); // set to width to optimum to avoid antialiasing
-        $(".js-printer-friendly-link").css("display", "none");
-    } else {
-        $(".js-printer-friendly-link").attr("href", path + "assessment/print?id=" + projectid + "#master/carboncoop");
-    }
-
-    // Organization
-    var hash = window.location.hash;
-    var org_report = hash.slice(hash.search('=') + 1);
-    console.log(org_report);
-
-    // Report date
+}
+function add_date() {
     var date = new Date();
     var months_numbers = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     $('#report_date').html(date.getDate() + '-' + months_numbers[date.getMonth()] + '-' + date.getFullYear());
-
-    // Figure 1: Retrofit Priorities
+}
+function add_prioirities_figure(scenarios) {
     //  Shows retrofit priorities - in order - identifying whether interested in retrofit for cost, comfort or carbon reasons etc.
 
     var priorities = {};
@@ -128,9 +136,8 @@ function carboncoop_UpdateUI() {
             }
         }
     }
-
-
-    // Figure 2: Performance Summary
+}
+function add_performance_summary_figure(scenarios) {
     // Quick overview/summary - Benchmarking Bar Charts. Need to ensure that all scenarios displayed, not just one as on current graph.
     // Space Heating Demand (kWh/m2.a)
     // Primary Energy Demand (kWh/m2.a)
@@ -141,7 +148,8 @@ function carboncoop_UpdateUI() {
     for (var i = 0; i < scenarios.length; i++) {
         if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].space_heating_demand_m2 != "undefined") {
             values[i] = Math.round(project[scenarios[i]].space_heating_demand_m2);
-        } else {
+        }
+        else {
             values[i] = 0;
         }
     }
@@ -173,7 +181,8 @@ function carboncoop_UpdateUI() {
     for (var i = 0; i < scenarios.length; i++) {
         if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].primary_energy_use_m2 != "undefined") {
             values[i] = Math.round(project[scenarios[i]].primary_energy_use_m2);
-        } else {
+        }
+        else {
             values[i] = 0;
         }
     }
@@ -197,7 +206,8 @@ function carboncoop_UpdateUI() {
     for (var i = 0; i < scenarios.length; i++) {
         if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].kgco2perm2 != "undefined") {
             values[i] = Math.round(project[scenarios[i]].kgco2perm2);
-        } else {
+        }
+        else {
             values[i] = 0;
         }
     }
@@ -246,46 +256,8 @@ function carboncoop_UpdateUI() {
     $(".key-square--scenario1").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_1.jpg" />');
     $(".key-square--scenario2").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_2.jpg" />');
     $(".key-square--scenario3").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_3.jpg" />');
-
-
-    // Figure 3: How does my home lose heat?
-    //
-
-    function heatlossData(scenario) {
-        if (typeof project[scenario] != "undefined" && typeof project[scenario].fabric != "undefined") {
-            return {
-                floorwk: Math.round(project[scenario].fabric.total_floor_WK),
-                ventilationwk: Math.round(project[scenario].ventilation.average_ventilation_WK),
-                infiltrationwk: Math.round(project[scenario].ventilation.average_infiltration_WK),
-                windowswk: Math.round(project[scenario].fabric.total_window_WK),
-                wallswk: Math.round(project[scenario].fabric.total_wall_WK),
-                roofwk: Math.round(project[scenario].fabric.total_roof_WK),
-                thermalbridgewk: Math.round(project[scenario].fabric.thermal_bridging_heat_loss),
-                totalwk: Math.round(project[scenario].fabric.total_floor_WK + project[scenario].ventilation.average_WK + project[scenario].fabric.total_window_WK + project[scenario].fabric.total_wall_WK + project[scenario].fabric.total_roof_WK + project[scenario].fabric.thermal_bridging_heat_loss)
-            }
-        } else {
-            return {
-                floorwk: 0,
-                ventilationwk: 0,
-                infiltrationwk: 0,
-                windowswk: 0,
-                wallswk: 0,
-                roofwk: 0,
-                thermalbridgewk: 0,
-                totalwk: 0
-            }
-        }
-    }
-
-    $("body").on("click", ".js-house-heatloss-diagram-picker span", function (e) {
-        var scenario = $(this).data("scenario");
-        $(".js-house-heatloss-diagram-picker span").removeClass("selected");
-        $(this).addClass("selected");
-        $(".js-house-heatloss-diagrams-wrapper .centered-house").css({
-            "display": "none"
-        });
-        $("div[data-scenario-diagram='" + scenario + "']").css("display", "block");
-    });
+}
+function add_heat_loss_summary_figure(scenarios) {
     heatlossDataMaster = heatlossData("master");
     heatlossDataScenario1 = heatlossData("scenario1");
     heatlossDataScenario2 = heatlossData("scenario2");
@@ -298,81 +270,21 @@ function carboncoop_UpdateUI() {
     // 	$(".js-house-heatloss-diagram-picker").css("display", "none");
     // }
 
-    function calculateRedShade(value, calibrateMax) {
-        var calibrateMax = 292;
-        return "rgba(255,0,0, " + (value / calibrateMax) + ")";
-    }
-
-    function generateHouseMarkup(heatlossData) {
-
-        var uscale = 30;
-        var sFloor = Math.sqrt(heatlossData.floorwk / uscale);
-        var sVentilation = Math.sqrt(heatlossData.ventilationwk / uscale);
-        var sInfiltration = Math.sqrt(heatlossData.infiltrationwk / uscale);
-        var sWindows = Math.sqrt(heatlossData.windowswk / uscale);
-        var sWalls = Math.sqrt(heatlossData.wallswk / uscale);
-        var sRoof = Math.sqrt(heatlossData.roofwk / uscale);
-        var sThermal = Math.sqrt(heatlossData.thermalbridgewk / uscale);
-        var html = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\
-     width="444px" height="330.5px" viewBox="0 0 444 330.5" enable-background="new 0 0 444 330.5" xml:space="preserve">\
-     <path fill="none" stroke="#F0533C" stroke-width="6" stroke-miterlimit="10" d="M106.8,108.1"/>\
-     <polyline fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" points="316.6,108.1 316.6,263.4 106.8,263.4 \
-     106.8,230.9 "/>\
-     <polyline fill="none" stroke="#F0533C" stroke-width="11" stroke-miterlimit="10" points="95.7,119.5 211.7,33.5 327.6,119.5 "/>\
-     <path fill="none" stroke="#F0533C" stroke-width="6" stroke-miterlimit="10" d="M57.8,240.6"/>\
-     <line fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="195.6" x2="106.5" y2="160.7"/>\
-     <line opacity="0.4" fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="160.7" x2="106.5" y2="125.8"/>\
-     <line fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.8" y1="125.8" x2="106.8" y2="107.8"/>\
-     <polygon id="roof" fill="#F0533C" transform="translate(270,60) scale(' + sRoof + ')" points="6.9,-23.6 -6.9,-5.4 7.7,5.6 21.5,-12.7 28.5,-7.4 24.9,-32.3 -0.1,-28.9 "/>\
-     <polygon id="windows" transform="translate(92,144) scale(-' + sWindows + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
-     <polygon id="ventilation" transform="translate(92,235) scale(-' + sVentilation + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
-     <polygon id="infiltration" transform="translate(140,65) scale(-' + sInfiltration + ') rotate(52)" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
-     <polygon id="wall" transform="translate(330,242) scale(' + sWalls + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
-     <polygon id="thermal-bridging" transform="translate(330,144) scale(' + sThermal + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
-     <polygon id="floor" transform="translate(213,278) scale(' + sFloor + ')" fill="#F0533C" points="9.1,22.9 9.1,0 -9.1,0 -9.1,22.9 -17.9,22.9 0,40.6 17.9,22.9 "/>\
-     <text transform="matrix(1 0 0 1 191.0084 172.7823)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="14">TOTAL </tspan><tspan x="-5.4" y="16.8" fill="#F0533C" font-size="14">' + heatlossData.totalwk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 328.5163 95)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Thermal Bridging</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.thermalbridgewk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 230.624 21.1785)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Roof</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.roofwk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 330.5875 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Walls</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.wallswk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 53.3572 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Planned ventilation</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.ventilationwk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 150.0000 21)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Draughts</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.infiltrationwk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 35.0902 90.1215)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Windows and doors</tspan><tspan x="11.2" y="12" fill="#F0533C" font-size="11">' + heatlossData.windowswk + ' W/K</tspan></text>\
-     <text transform="matrix(1 0 0 1 248.466 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Floor</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.floorwk + ' W/K</tspan></text>\
-     <g opacity="0.4">\
-     <polygon fill="#F0533C" points="110.1,133.2 102.8,128.8 102.8,129.9 110.1,134.3 	"/>\
-     <polygon fill="#F0533C" points="110.1,141.5 102.8,137.1 102.8,138.2 110.1,142.6 	"/>\
-     <polygon fill="#F0533C" points="110.1,149.8 102.8,145.4 102.8,146.4 110.1,150.8 	"/>\
-     <polygon fill="#F0533C" points="110.1,158 102.8,153.6 102.8,154.7 110.1,159.1 	"/>\
-     </g>\
-     <line opacity="0.4" fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="230.7" x2="106.5" y2="195.8"/>\
-     <g opacity="0.4">\
-     <polygon fill="#F0533C" points="110.1,203.2 102.8,198.8 102.8,199.9 110.1,204.3 	"/>\
-     <polygon fill="#F0533C" points="110.1,211.5 102.8,207.1 102.8,208.2 110.1,212.6 	"/>\
-     <polygon fill="#F0533C" points="110.1,219.8 102.8,215.4 102.8,216.4 110.1,220.8 	"/>\
-     <polygon fill="#F0533C" points="110.1,228 102.8,223.6 102.8,224.7 110.1,229.1 	"/>\
-     </g>\
-     </svg>'
-        return html;
-    }
-
-
     $("#house-heatloss-diagram-master .js-svg").html($(generateHouseMarkup(heatlossDataMaster)));
     $("#house-heatloss-diagram-scenario1 .js-svg").html($(generateHouseMarkup(heatlossDataScenario1)));
     $("#house-heatloss-diagram-scenario2 .js-svg").html($(generateHouseMarkup(heatlossDataScenario2)));
     $("#house-heatloss-diagram-scenario3 .js-svg").html($(generateHouseMarkup(heatlossDataScenario3)));
     // termal bridging right pointing arrow: <polygon opacity="0.5" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>
-
-
-    // Figure 4: Your home’s heat balance
+}
+function add_heat_balance_figure(scenarios) {
     // Heat transfer per year by element. The gains and losses here need to balance. 
     // data.annual_losses_kWh_m2 appears to be empty, so there are currently no negative stacks on this chart
-    //
-
     var values = [];
     for (var i = 0; i < scenarios.length; i++) {
         if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].kwhdpp != "undefined") {
             values[i] = Math.round(project[scenarios[i]].kwhdpp.toFixed(1));
-        } else {
+        }
+        else {
             values[i] = 0;
         }
     }
@@ -466,9 +378,8 @@ function carboncoop_UpdateUI() {
     });
     $('#heat-balance').html('');
     EnergyDemand.draw('heat-balance');
-
-
-    // Figure 5: Space Heating Demand
+}
+function add_space_heating_demand_figure(scenarios) {
     var values = [];
     var max_value = 250; // used to set the height of the chart
     for (var i = 0; i < scenarios.length; i++) {
@@ -476,7 +387,8 @@ function carboncoop_UpdateUI() {
             values[i] = Math.round(project[scenarios[i]].space_heating_demand_m2);
             if (max_value < values[i])
                 max_value = values[i] + 50;
-        } else {
+        }
+        else {
             values[i] = 0;
         }
     }
@@ -538,66 +450,10 @@ function carboncoop_UpdateUI() {
     });
     $('#fig-5-space-heating-demand').html('');
     SpaceHeatingDemand.draw('fig-5-space-heating-demand');
-
-
-    // Figure 6: Energy Demand
-    var max_value = 40000;
-    function getEnergyDemandData() {
-        var data = {};
-        for (var i = 0; i < scenarios.length; i++) {
-            data[scenarios[i]] = [];
-            var electric = 0;
-            var gas = 0;
-            var other = 0;
-            if (typeof project[scenarios[i]] !== "undefined") {
-                if (typeof project[scenarios[i]].fuel_totals !== "undefined") {
-                    for (var fuel in project[scenarios[i]].fuel_totals) {
-                        if (project[scenarios[i]].fuels[fuel].category == 'Electricity')
-                            electric += project[scenarios[i]].fuel_totals[fuel].quantity;
-                        else if (project[scenarios[i]].fuels[fuel].category == 'Gas')
-                            gas += project[scenarios[i]].fuel_totals[fuel].quantity;
-                        else if (fuel != 'generation')
-                            other += project[scenarios[i]].fuel_totals[fuel].quantity;
-                    }
-                    data[scenarios[i]].push({value: gas, label: 'Gas', variance: gas * 0.3});
-                    data[scenarios[i]].push({value: electric, label: 'Electric', variance: electric * 0.3});
-                    data[scenarios[i]].push({value: other, label: 'Other', variance: other * 0.3});
-                }
-            }
-            if (max_value < (gas + electric + other))
-                max_value = gas + electric + other + 5000;
-        }
-
-
-        data.bills = [
-            {
-                value: 0,
-                label: 'Gas',
-            },
-            {value: 0,
-                label: 'Electric',
-            },
-            {
-                value: 0,
-                label: "Other"
-            }
-        ];
-        for (var fuel in project['master'].currentenergy.use_by_fuel) {
-            var f_use = project['master'].currentenergy.use_by_fuel[fuel];
-            if (project['master'].fuels[fuel].category == 'Gas')
-                data.bills[0].value += f_use.annual_use;
-            else if (project['master'].fuels[fuel].category == 'Electricity')
-                data.bills[1].value += f_use.annual_use;
-            else
-                data.bills[2].value += f_use.annual_use;
-        }
-        data.bills[1].value += project['master'].currentenergy.generation.fraction_used_onsite * project['master'].currentenergy.generation.annual_generation; // We added consumption coming from generation
-        if (max_value < (data.bills[0].value + data.bills[1].value + 1.0 * data.bills[2].value))
-            max_value = data.bills[0].value + data.bills[1].value + 1.0 * data.bills[2].value + 5000;
-        return data;
-    }
-
-    var energyDemandData = getEnergyDemandData();
+}
+function add_energy_demand_figure(scenarios) {
+    max_value = 40000;
+    var energyDemandData = getEnergyDemandData(scenarios);
     var EnergyDemand = new BarChart({
         chartTitleColor: 'rgb(87, 77, 86)',
         yAxisLabelColor: 'rgb(87, 77, 86)', barLabelsColor: 'rgb(87, 77, 86)',
@@ -624,75 +480,9 @@ function carboncoop_UpdateUI() {
     });
     $('#energy-demand').html('');
     EnergyDemand.draw('energy-demand');
-
-
-    // Figure 7:    
-    function getPrimaryEnergyUseData() {
-        var primaryEnergyUseData = {};
-        primaryEnergyUseData.max = 500;
-        primaryEnergyUseData.min = 0;
-        for (var i = 0; i < scenarios.length; i++) {
-            primaryEnergyUseData[scenarios[i]] = [];
-            if (typeof project[scenarios[i]] !== "undefined") {
-                if (typeof project[scenarios[i]].primary_energy_use_by_requirement !== "undefined") {
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] / data.TFA, label: 'Water Heating'});
-                    }
-
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] / data.TFA, label: 'Space Heating'});
-                    }
-
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['cooking'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['cooking'] / data.TFA, label: 'Cooking'});
-                    }
-
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['appliances'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['appliances'] / data.TFA, label: 'Appliances'});
-                    }
-
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['lighting'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['lighting'] / data.TFA, label: 'Lighting'});
-                    }
-
-                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] !== "undefined") {
-                        primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] / data.TFA, label: 'Fans and Pumps'});
-                    }
-                    if (project[scenarios[i]].use_generation == 1 && project[scenarios[i]].fuel_totals['generation'].primaryenergy < 0) { // we offset the stack displacing it down for the amount of renewables
-                        var renewable_left = -project[scenarios[i]].fuel_totals['generation'].primaryenergy / data.TFA; // fuel_totals['generation'].primaryenergy is negative
-                        primaryEnergyUseData[scenarios[i]].forEach(function (use) {
-                            if (use.value <= renewable_left) {
-                                renewable_left -= use.value;
-                                use.value = -use.value;
-                            }
-                            if (use.value > renewable_left) {
-                                primaryEnergyUseData[scenarios[i]].push({value: use.value - renewable_left, label: use.label}); // we create another bar with the same color than current use with the amount that is still positive
-                                use.value = -renewable_left; // the amount offseted
-                                renewable_left = 0;
-                            }
-                        });
-                    }
-                }
-            }
-            if (typeof project[scenarios[i]] !== "undefined" && project[scenarios[i]].primary_energy_use_m2 > primaryEnergyUseData.max)
-                primaryEnergyUseData.max = project[scenarios[i]].primary_energy_use_m2;
-            if (typeof project[scenarios[i]] !== "undefined" && project[scenarios[i]].use_generation == 1 && project[scenarios[i]].fuel_totals['generation'].primaryenergy / project[scenarios[i]].TFA < primaryEnergyUseData.min)  // fuel_totals['generation'] is negative
-                primaryEnergyUseData.min = project[scenarios[i]].fuel_totals['generation'].primaryenergy / project[scenarios[i]].TFA;
-        }
-
-        primaryEnergyUseData.bills = [
-            {
-                value: data.currentenergy.primaryenergy_annual_kwhm2,
-                label: "Non categorized"},
-            {
-                value: -data.currentenergy.generation.primaryenergy / data.TFA,
-                label: "Non categorized"}
-        ]
-
-        return primaryEnergyUseData;
-    }
-
-    var primaryEnergyUseData = getPrimaryEnergyUseData();
+}
+function add_primary_energy_usage_figure(scenarios) {
+    var primaryEnergyUseData = getPrimaryEnergyUseData(scenarios);
     var primaryEneryUse = new BarChart({
         chartTitleColor: 'rgb(87, 77, 86)',
         yAxisLabelColor: 'rgb(87, 77, 86)',
@@ -736,11 +526,8 @@ function carboncoop_UpdateUI() {
     });
     $('#primary-energy-use').html('');
     primaryEneryUse.draw('primary-energy-use');
-
-
-    // Figure 8: Carbon dioxide emissions in kgCO2/m2.a
-    //
-    //
+}
+function add_carbon_dioxide_per_m2_figure(scenarios) {
     var carbonDioxideEmissionsData = [];
     var max = 100;
     if (typeof project["master"] !== "undefined" && typeof project["master"].kgco2perm2 !== "undefined") {
@@ -804,10 +591,8 @@ function carboncoop_UpdateUI() {
         ], });
     $('#carbon-dioxide-emissions').html('');
     CarbonDioxideEmissions.draw('carbon-dioxide-emissions');
-
-
-    // Figure 9: Bar chart showing carbon dioxide emissions rate (kgCO2/person.a)      //
-    //
+}
+function add_carbon_dioxide_per_person_figure(scenarios) {
     var carbonDioxideEmissionsPerPersonData = [];
     if (typeof project["master"] != "undefined" && typeof project["master"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
         var array = [{value: project["master"].annualco2 / project["master"].occupancy}];
@@ -869,9 +654,8 @@ function carboncoop_UpdateUI() {
     $('#carbon-dioxide-emissions-per-person').html('');
     CarbonDioxideEmissionsPerPerson.draw('carbon-dioxide-emissions-per-person');
 
-
-    // Figure 10: Estimated Energy cost comparison       // Bar chart showing annual fuel cost. Waiting on Trystan for data
-    //
+}
+function add_energy_costs_figure(scenarios) {
     var estimatedEnergyCostsData = [];
     var max = 3500;
     if (typeof project["master"] != "undefined" && typeof project["master"].total_cost !== "undefined") {
@@ -882,39 +666,39 @@ function carboncoop_UpdateUI() {
         if (max < project["master"].total_cost + 0.3 * project["master"].total_cost)
             max = project["master"].total_cost + 0.3 * project["master"].total_cost;
     }
-    
+
     var array = [{value: project["master"].currentenergy.total_cost}];
     if (project['master'].currentenergy.generation.annual_savings > 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
         array.push({value: -project['master'].currentenergy.generation.annual_savings});
     estimatedEnergyCostsData.push({label: "Bills data", value: array});
     //if (max < project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost)
     //    max = project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost;
-    
+
     if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].total_cost !== "undefined") {
         var array = [{value: project["scenario1"].total_cost}];
         if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
             array.push({value: project['scenario1'].fuel_totals['generation'].annualcost});
         estimatedEnergyCostsData.push({label: "Scenario 1", value: array});
         //if (max < project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost)
-          //  max = project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost;
+        //  max = project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost;
     }
-    
+
     if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].total_cost !== "undefined") {
         var array = [{value: project["scenario2"].total_cost}];
         if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
             array.push({value: project['scenario2'].fuel_totals['generation'].annualcost});
         estimatedEnergyCostsData.push({label: "Scenario 2", value: array});
         //if (max < project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost)
-          //  max = project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost;
+        //  max = project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost;
     }
-    
+
     if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].total_cost !== "undefined") {
         var array = [{value: project["scenario3"].total_cost}];
         if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
             array.push({value: project['scenario3'].fuel_totals['generation'].annualcost});
         estimatedEnergyCostsData.push({label: "Scenario 3", value: array});
         //if (max < project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost)
-          //  max = project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost;
+        //  max = project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost;
     }
 
     var EstimatedEnergyCosts = new BarChart({
@@ -933,28 +717,8 @@ function carboncoop_UpdateUI() {
     });
     $('#estimated-energy-cost-comparison').html('');
     EstimatedEnergyCosts.draw('estimated-energy-cost-comparison');
-
-    // Figure 11: Comfort Tables.
-    //	
-    //
-    function createComforTable(options, tableID, chosenValue) {
-        $("#" + tableID + " .comfort-table-td").remove();
-        for (var i = options.length - 1; i >= 0; i--) {
-
-            if (options[i].title == chosenValue) {
-                var background = options[i].color;
-                $("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'><img src='../Modules/assessment/img-assets/" + options[i].color + "_box.jpg' style='height:30px;width:30px;vertical-align:middle' /></td>"));
-            } else {
-                var background = 'transparent';
-                $("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'></td>"));
-            }
-            //$("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'  style='background:" + background + "'></td>"));
-        }
-    }
-
-    //var red = "rgb(228, 27, 58)";
-    //var green = "rgb(149, 211, 95)";
-
+}
+function add_comfort_tables(scenarios) {
     // Temperature in Winter
     if (project.master.household == undefined
             || project.master.household["6a_temperature_winter"] == undefined
@@ -964,7 +728,8 @@ function carboncoop_UpdateUI() {
             || project.master.household["6b_daylightamount"] == undefined
             || project.master.household["6b_artificallightamount"] == undefined) {
         $('.comfort-tables').html('<p>There is not enough information, please check section 6 in Household Questionnaire. </p>')
-    } else {
+    }
+    else {
         var options = [{
                 title: "Too cold", color: 'red',
             }, {
@@ -1063,10 +828,9 @@ function carboncoop_UpdateUI() {
         ];
         createComforTable(options, "comfort-table-draughts-winter", project.master.household["6a_draughts_winter"]);
     }
-
-    // Figure 12: Humidity Data
-    // 
-    //
+}
+function add_health_data(scenarios) {
+    // Humidity Data
     if (data.household != undefined) {
         if (data.household.reading_humidity1 == undefined && data.household.reading_humidity2 == undefined)
             $(".js-average-humidity").html('There is not enough information, please check section 3 in Household Questionnaire.');
@@ -1080,9 +844,7 @@ function carboncoop_UpdateUI() {
         }
     }
 
-    // Figure 12: Temperature Data
-    // 
-    //
+    // Temperature Data
     if (data.household != undefined) {
         if (data.household.reading_temp1 == undefined && data.household.reading_temp2 == undefined)
             $(".js-average-temp").html('There is not enough information, please check section 3 in Household Questionnaire.');
@@ -1095,9 +857,8 @@ function carboncoop_UpdateUI() {
             $(".js-average-temp").html('When we visited, the temperature was ' + averageHumidity + '°C.<br />(It is recommended that living spaces are at 16<sup>o</sup>C as a minium (World Health Organisation).');
         }
     }
-    // Figure 12: You also told us...
-    // 
-    //
+
+    // You also told us...
     if (data.household != undefined) {
         data.household['6c_noise_comment'] == undefined ? $('.js-noise_comment').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-noise_comment').html(data.household['6c_noise_comment']);
         data.household['6b_problem_locations'] == undefined || data.household['6b_problem_locations'] === '' ? $('.js-problem_locations_daylight').html('There is not enough information, please check section 6 in Household Questionnaire.') : $('.js-problem_locations_daylight').html(data.household['6b_problem_locations']);
@@ -1134,334 +895,275 @@ function carboncoop_UpdateUI() {
             var laundryHabits = laundryHabits.slice(0, -2);
         $(".js-laundry-habits").html(laundryHabits);
     }
-    // Figure 13, 14, 15, 17, 18 and 19: Scenarios Measures    //
-    // Calculate Total cost
-
-    for (scenario in project) {
-        if (scenario == 'scenario1' || scenario == 'scenario3' || scenario == 'scenario2') {
-            $('#tota-cost-' + scenario).html('£' + Math.round(measures_costs(scenario) / 10) * 10);
+}
+function add_measures_summary_tables(scenarios) {
+    var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
+    scenarios.forEach(function (scenario, index) {
+        if (scenario != 'master') {
+            var html = '<div class="no-break">';
+            html += '<h4 class="top-border-title title-margin-bottom break-before ">Figure 13' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
+            if (project[scenario].created_from != undefined && project[scenario].created_from != 'master')
+                html += '<p>This scenario assumes the measures in Scenario ' + project[scenario].created_from.split('scenario')[1] + ' have already been carried out and adds to them</p>';
+            html += '<p>Total cost of the scenario £' + Math.round(measures_costs(scenario) / 10) * 10 + ' </p>';
+            html += '<div class="five-col-table-wrapper">' + scenarios_measures_summary[scenario] + '</div>';
+            html += '</div>';
+            html = html.replace('measures-summary-table', 'measures-summary-table no-break');
+            $('#ccop-report-measures-summary-tables').append(html);
         }
-    }
-
-    // Tables - Figure 18
-    var measuresTableColumns = [
-        "name",
-        "location",
-        "description",
-        "performance",
-        "benefits",
-        "cost",
-        "cost_units",
-        "quantity",
-        "cost_total",
-        "who_by",
-        "key_risks",
-        "disruption",
-        "associated_work",
-        "maintenance",
-        "notes"
-    ];
-    function populateMeasuresTable(scenario, tableSelector, summaryTableSelector, listSelector) {
-        if (project[scenario].fabric.measures != undefined)
-            addListOfMeasuresByIdToSummaryTable(project[scenario].fabric.measures, tableSelector, summaryTableSelector, listSelector);
-        if (project[scenario].measures != undefined) {
-            if (project[scenario].measures.ventilation != undefined) {
-                if (project[scenario].measures.ventilation.extract_ventilation_points != undefined)
-                    addListOfMeasuresByIdToSummaryTable(project[scenario].measures.ventilation.extract_ventilation_points, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.ventilation.intentional_vents_and_flues != undefined)
-                    addListOfMeasuresByIdToSummaryTable(project[scenario].measures.ventilation.intentional_vents_and_flues, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.ventilation.intentional_vents_and_flues_measures != undefined)
-                    addListOfMeasuresByIdToSummaryTable(project[scenario].measures.ventilation.intentional_vents_and_flues_measures, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.ventilation.draught_proofing_measures != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.ventilation.draught_proofing_measures, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.ventilation.ventilation_systems_measures != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.ventilation.ventilation_systems_measures, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.ventilation.clothes_drying_facilities != undefined)
-                    addListOfMeasuresByIdToSummaryTable(project[scenario].measures.ventilation.clothes_drying_facilities, tableSelector, summaryTableSelector, listSelector);
-            }
-            if (project[scenario].measures.water_heating != undefined) {
-                if (project[scenario].measures.water_heating.water_usage != undefined)
-                    addListOfMeasuresByIdToSummaryTable(project[scenario].measures.water_heating.water_usage, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.water_heating.storage_type != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.water_heating.storage_type, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.water_heating.pipework_insulation != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.water_heating.pipework_insulation, tableSelector, summaryTableSelector, listSelector);
-                if (project[scenario].measures.water_heating.hot_water_control_type != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.water_heating.hot_water_control_type, tableSelector, summaryTableSelector, listSelector);
-            }
-            if (project[scenario].measures.space_heating_control_type != undefined)
-                addListOfMeasuresByIdToSummaryTable(project[scenario].measures.space_heating_control_type, tableSelector, summaryTableSelector, listSelector);
-            if (project[scenario].measures.heating_systems != undefined)
-                addListOfMeasuresByIdToSummaryTable(project[scenario].measures.heating_systems, tableSelector, summaryTableSelector, listSelector);
-            if (project[scenario].measures.space_heating != undefined) {
-                if (project[scenario].measures.space_heating.heating_control != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.space_heating.heating_control, tableSelector, summaryTableSelector, listSelector);
-            }
-            if (project[scenario].use_generation == 1 && project[scenario].measures.PV_generation != undefined) {
-                addMeasureToSummaryTable(project[scenario].measures.PV_generation, tableSelector, summaryTableSelector, listSelector);
-            }
-            if (project[scenario].measures.LAC != undefined) {
-                if (project[scenario].measures.LAC.lighting != undefined)
-                    addMeasureToSummaryTable(project[scenario].measures.LAC.lighting, tableSelector, summaryTableSelector, listSelector);
-            }
-        }
-    }
-    function addListOfMeasuresByIdToSummaryTable(listOfMeasures, tableSelector, summaryTableSelector, listSelector) {
-        for (var measureID in listOfMeasures) {
-            var measure = listOfMeasures[measureID];
-            addMeasureToSummaryTable(measure, tableSelector, summaryTableSelector, listSelector);
-        }
-    }
-    function addMeasureToSummaryTable(measure, tableSelector, summaryTableSelector, listSelector) {
-        // Complete table
-        var html = "<tr>";
-        var row = $('<tr></tr>');
-        for (var i = 0; i < measuresTableColumns.length; i++) {
-            var cell = $('<td></td>');
-            cell.html(isNaN(measure.measure[measuresTableColumns[i]]) ? measure.measure[measuresTableColumns[i]] : (1.0 * measure.measure[measuresTableColumns[i]]).toFixed(2));
-            row.append(cell);
-        }
-        $(tableSelector).append(row);
-        //Summary table
-        addRowToSummaryTable(summaryTableSelector, measure.measure.name, measure.measure.location, measure.measure.description, measure.measure.performance,
-                measure.measure.benefits, (1.0 * measure.measure.cost_total).toFixed(2), measure.measure.who_by, measure.measure.disruption);
-
-        //List
-        html = "<table class='no-break'>";
-        html += '<tr><td style="width:13%"><strong>Measure: </strong></td><td colspan=3>' + measure.measure.name + '</td></tr>';
-        if (typeof measure.measure.location != 'undefined') {
-            var location = measure.measure.location.replace(/,br/g, ', '); // for measures applied in bulk to fabric elements the location has the form of: W9,brW10,brW21,brD3,brW4,brW5,brW6a,brW16 , and we dont want that
-            if (location[location.length - 2] == ',' && location[location.length - 1] == ' ')
-                location = location.substring(0, location.length - 2);
-            html += '<tr><td><strong>Label/location: </strong></td><td colspan=3>' + location + '</td></tr>';
-        }
-        else
-            html += '<tr><td><strong>Label/location: </strong></td><td colspan=3> Whole house</td></tr>';
-        html += '<tr><td><strong>Description: </strong></td><td colspan=3>' + measure.measure.description + '</td></tr>';
-        html += '<tr><td><strong>Associated work: </strong></td><td colspan=3>' + measure.measure.associated_work + '</td></tr>';
-        if (measure.measure.maintenance != 'undefined')
-            html += '<tr><td><strong>Maintenance: </strong></td><td colspan=3>' + measure.measure.maintenance + '</td></tr>';
-        else
-            html += '<tr><td><strong>Maintenance: </strong></td><td colspan=3> N/A</td></tr>';
-        html += '<tr><td><strong>Special and other considerations: </strong></td><td colspan=3>' + measure.measure.notes + '</td></tr>';
-        html += '<tr><td><strong>Who by: </strong></td><td style="width:35%">' + measure.measure.who_by + '</td>';
-        html += '<td style="width:13%"><strong>Key risks: </strong></td><td>' + measure.measure.key_risks + '</td></tr>';
-        html += '<tr><td><strong>Benefits: </strong></td><td>' + measure.measure.benefits + '</td>';
-        if (measure.measure.disruption != undefined)
-            html += '<td><strong>Dirt and disruption: </strong></td><td>' + measure.measure.disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td></tr>';
-        else
-            html += '<td><strong>Dirt and disruption: </strong></td><td></td></tr>';
-        if (measure.measure.performance == undefined)
-            var perf = '';
-        else
-            var perf = measure.measure.performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('W/msup2/sup.K',' W/m<sup>2</sup>.K')
-                    .replace('msup3/sup/msup2/sup.hr50pa','m<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
-        html += '<tr><td><strong>Performance target: </strong></td><td style="width:35%">' + perf + '</td>';
-        html += '<td colspan=2><table  style="width:100%">';
-        html += measure.measure.min_cost == undefined ? '' : '<tr><td><strong>Minimum cost</strong></td><td colspan=3>' + measure.measure.min_cost + '</td></tr>';
-        html += '<tr><td style="width:25%"><strong>Cost (£/unit): </strong></td><td>' + measure.measure.cost + '</td><td style="width:30%"><strong>Units: </strong></td><td>' + measure.measure.cost_units + '</td></tr>';
-        html += '<tr><td><strong>Quantity (units): </strong></td><td>' + (1.0 * measure.measure.quantity).toFixed(2) + '</td><td><strong>Total cost (£): </strong></td><td>' + (1.0 * measure.measure.cost_total).toFixed(2) + '</td></tr></table></td></tr>';
-        html += "</table>";
-        $(listSelector).append(html);
-    }
-
-    function initialiseMeasuresTable(tableSelector) {
-        var html = '<tr>\
-     <th class="tg-yw4l" rowspan="2">Measure</th>\<th class="tg-yw4l" rowspan="2">Label/location</th>\
-     <th class="tg-yw4l" rowspan="2">Description</th>\
-     <th class="tg-yw4l" rowspan="2">Performance Target</th>\         <th class="tg-yw4l" rowspan="2">Benefits (in order)</th>\
-     <th class="tg-yw4l" colspan="4">How Much?</th>\
-     <th class="tg-yw4l" rowspan="2">Who by?</th>\
-     <th class="tg-yw4l" rowspan="2">Key risks</th>\
-     <th class="tg-yw4l" rowspan="2">Dirt and disruption?</th>\
-     <th class="tg-yw4l" rowspan="2">Associated work?</th>\
-     <th class="tg-yw4l" rowspan="2">Maintenace</th>\
-     <th class="tg-yw4l" rowspan="2">Special and other considerations</th>\
-     </tr>\
-     <tr>\
-     <td class="th">Rate (£)</td>\ 						    <td class="th">Unit</td>\
-     <td class="th">Quantity</td>\
-     <td class="th">Total</td>\
-     </tr>';
-        return $(tableSelector).html(html);
-    }
-    function createMeasuresTable(scenario, tableSelector, summaryTableSelector, listSelector) {
-        initialiseMeasuresTable(tableSelector);
-        initiliaseMeasuresSummaryTable(summaryTableSelector);
-        populateMeasuresTable(scenario, tableSelector, summaryTableSelector, listSelector);
-    }
-
-    function initiliaseMeasuresSummaryTable(summaryTableSelector) {
-        var html = "<thead>\
-     <tr>\
-     <th>Name</th>\<th>Label/location</th>\ <th>Performance target</th>\         <th>Benefits (in order)</th>\ 	 	 	<th>Cost</th>\
-     <th>Completed By</th>\
-     <th>Disruption</th>\
-     </tr>\ 			</thead>\
-     <tbody>\
-     </tbody>";
-        return $(summaryTableSelector).html(html);
-    }
-
-    function addRowToSummaryTable(tableSelector, name, location, description, performance, benefits, cost, who_by, disruption) {
-        var html = '<tr><td class="highlighted-col">' + name + '</td>';
-        if (typeof location != 'undefined') {
-            location = location.replace(/,br/g, ', '); // for measures applied in bulk to fabric elements the location has the form of: W9,brW10,brW21,brD3,brW4,brW5,brW6a,brW16 , and we dont want that
-            if (location[location.length - 2] == ',' && location[location.length - 1] == ' ')
-                location = location.substring(0, location.length - 2);
-            if (location.length > 50)
-                location = "Various";
-            html += '<td><div class="text-width-limiter">' + location + '</div>';
-        }
-        else
-            html += '<td><div class="text-width-limiter">Whole house</div>';
-        html += '</td>';
-        if (typeof (performance) != 'string')
-            var perf = "";
-        else {
-            var perf = performance.replace("WK.m2", "W/m<sup>2</sup>.K")
-                    .replace("W/K.m2", "W/m<sup>2</sup>.K")
-                    .replace('m3m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('m3/m2.hr50pa', 'm<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('W/msup2/sup.K',' W/m<sup>2</sup>.K')
-                    .replace('msup3/sup/msup2/sup.hr50pa','m<sup>3</sup>/m<sup>2</sup>.hr50pa')
-                    .replace('na', 'n/a'); // We have realized that some units were inputted wrong in the library
-        }
-        html += '<td>' + perf + '</td>';
-        html += '<td>' + benefits + '</td>';
-        html += '<td class="cost">£' + Number(cost).toFixed(0) + '</td>';
-        html += '<td>' + who_by + '</td>';
-        if (typeof (disruption) == 'string')
-            html += '<td>' + disruption.replace('MEDIUMHIGH', 'MEDIUM / HIGH') + '</td>';
-        else
-            html += '<td></td>';
-        html += '</tr>';
-        $(tableSelector + " tbody").append($(html));
-    }
-
-    if (typeof project["scenario1"] != "undefined") {
-        $(".output-scenario1-name").html(project["scenario1"]["scenario_name"]);
-        $('#scenario1-measures').html("");
-        $('.js-measures1-summary').html("");
-        $('#scenario1-measures-list').html("");
-        createMeasuresTable("scenario1", "#scenario1-measures", ".js-measures1-summary", '#scenario1-measures-list');
-    }
-    else
-        $(".output-scenario1-name").html('This scenario has not been created');
-
-    if (typeof project["scenario2"] != "undefined") {
-        $(".output-scenario2-name").html(project["scenario2"]["scenario_name"]);
-        $('#scenario2-measures').html("");
-        $('.js-measures2-summary').html("");
-        $('#scenario2-measures-list').html("");
-        createMeasuresTable("scenario2", "#scenario2-measures", ".js-measures2-summary", '#scenario2-measures-list');
-    }
-    else
-        $(".output-scenario2-name").html('This scenario has not been created');
-
-    if (typeof project["scenario3"] != "undefined") {
-        $(".output-scenario3-name").html(project["scenario3"]["scenario_name"]);
-        $('#scenario3-measures').html("");
-        $('.js-measures3-summary').html("");
-        $('#scenario3-measures-list').html("");
-        createMeasuresTable("scenario3", "#scenario3-measures", ".js-measures3-summary", '#scenario3-measures-list');
-    }
-    else
-        $(".output-scenario3-name").html('This scenario has not been created');
-
-    // We have decided we don't want the Measures Complete tables as a table because they take too much vertical space
-    // I prefer to hide them instead of deleting them just in case we wnat to do something with them in the future
-    $('#scenario1-measures').hide();
-    $('#scenario2-measures').hide();
-    $('#scenario3-measures').hide();
-    //
-
-    // Figures  14, 15, 16, 17, 18 and 19 - Display message when scenario is created from another scenario
-    if (project['scenario1'] != undefined && project['scenario1'].created_from != undefined && project['scenario1'].created_from != 'master')
-        $('.scenario1-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario1'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
-    if (project['scenario2'] != undefined && project['scenario2'].created_from != undefined && project['scenario2'].created_from != 'master')
-        $('.scenario2-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario2'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
-    if (project['scenario3'] != undefined && project['scenario3'].created_from != undefined && project['scenario3'].created_from != 'master')
-        $('.scenario3-inheritance').html('This scenario assumes the measures in Scenario ' + project['scenario3'].created_from.split('scenario')[1] + ' have already been carried out and adds to them').show();
-
-    // Commentary -  section 2.3
+    });
+}
+function add_commentary() {
     if (data.household != undefined && data.household.commentary != undefined) {
         var commentary = data.household.commentary.replace(/\n/gi, "<br />");
         $('#commentary').html(commentary);
     }
-
-    // Figure 20: Appendix B - Scenario comparison
-    //
-    //
-    var hours_off = 0;
-    for (var period in data.temperature.hours_off.weekday)
-        hours_off += data.temperature.hours_off.weekday[period];
-    var normalDayHeatingHours = 24 - hours_off;
-    hours_off = 0;
-    for (var period in data.temperature.hours_off.weekend)
-        hours_off += data.temperature.hours_off.weekend[period];
-    var altDayHeatingHours = 24 - hours_off;
-    var totalHeatingHours = normalDayHeatingHours; // We only take into account weekdays hours, discussion in issue 182
-
-    function compare(num1, num2) {
-        if (num1 > num2) {
-            return "Lower";
-        } else if (num1 < num2) {
-            return "Higher";
-        } else if (num1 == num2) {
-            return "Same";
-        } else {
-            return "N/A";
-        }
-    }
-    // time format is "11:30" or "15:00" etc
-    function getTimeDifference(time1, time2) {
-        if (time1 == null || time2 == null) {
-            return false;
-        }
-        // thanks to http://stackoverflow.com/questions/1787939/check-time-difference-in-javascript
-        var time1Array = time1.split(":");
-        var time2Array = time2.split(":");
-        // use a constant date (e.g. 2000-01-01) and the desired time to initialize two dates
-
-        var date1 = new Date(2000, 0, 1, time1Array[0], time1Array[1]);
-        var date2 = new Date(2000, 0, 1, time2Array[0], time2Array[1]);
-        // the following is to handle cases where the times are on the opposite side of
-        // midnight e.g. when you want to get the difference between 9:00 PM and 5:00 AM
-
-        if (date2 < date1) {
-            date2.setDate(date2.getDate() + 1);
-        }
-
-        var diff = date2 - date1;
-        // diff is in miliseconds so convert to hours
-        return diff / (1000 * 60 * 60);
-    }
-
-    // $(".js-average-heating-hours").html(totalHeatingHours);
-    if (data.household != undefined) {
-        $(".js-average-heating-hours-comparison").html(compare(9, totalHeatingHours));//
-        $(".js-thermostat-comparison").html(compare(21, parseFloat(data.household["3a_roomthermostat"])));
-        $('#js-habitable-not-heated-rooms').html(project['master'].household["3a_habitable_rooms_not_heated"])
-        $(".js-unheated-rooms-comparison").html(compare(0, project['master'].household["3a_habitable_rooms_not_heated"]));
-        $(".js-appliance-energy-use").html(Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0));
-        $(".js-appliance-energy-use-comparison").html(compare(3880, Math.round(project.master.energy_requirements.appliances != undefined ? project.master.energy_requirements.appliances.quantity : 0)));
-    }
-
-    $(".js-heating-hours-normal").html(normalDayHeatingHours);
-    $(".js-heating-hours-alt").html(altDayHeatingHours);
-    // Scenario comparison
-    if (typeof project["scenario1"] != "undefined")
-        compareCarbonCoop("scenario1", "#js-scenario1-comparison");
-    if (typeof project["scenario2"] != "undefined")
-        compareCarbonCoop("scenario2", "#js-scenario2-comparison");
-    if (typeof project["scenario3"] != "undefined")
-        compareCarbonCoop("scenario3", "#js-scenario3-comparison");
-
-
 }
+function add_measures_complete_tables(scenarios) {
+    var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
+    scenarios.forEach(function (scenario, index) {
+        if (scenario != 'master') {
+            var html = '<div class="no-break">';
+            html += '<h4 class="top-border-title title-margin-bottom break-before">Figure 14' + abc[index - 1] + ' - Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</h4>'
+            if (project[scenario].created_from != undefined && project[scenario].created_from != 'master')
+                html += '<p>This scenario assumes the measures in Scenario ' + project[scenario].created_from.split('scenario')[1] + ' have already been carried out and adds to them</p>';
+            html += '<p>Total cost of the scenario £' + Math.round(measures_costs(scenario) / 10) * 10 + ' </p>';
+            html += '<div class="five-col-table-wrapper">' + scenarios_measures_complete[scenario] + '</div>';
+            html += '</div>';
+            html = html.replace(/complete-measures-table/g, 'complete-measures-table no-break');
+            $('#ccop-report-measures-complete-tables').append(html);
+        }
+    });
+}
+function add_comparison_tables(scenarios) {
+    var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
+    scenarios.forEach(function (scenario, index) {
+        if (scenario != 'master') {
+            var html = '<div class="highlight-box pink-highlight" style="page-break-before:avoid; page-break-inside: auto">';
+            html += ' <h4 class="top-border-title title-margin-bottom ">Figure 15' + abc[index - 1] + ' Master/Scenario ' + scenario.split('scenario')[1] + 'Comparison Table</h4>';
+            html += '<div class="js-scenario-comparison">' + scenarios_comparison[scenario] + '</div>';
+            html += '</div>';
+            $('#comparison-tables').append(html);
+        }
+    });
+}
+
+function heatlossData(scenario) {
+    if (typeof project[scenario] != "undefined" && typeof project[scenario].fabric != "undefined") {
+        return {
+            floorwk: Math.round(project[scenario].fabric.total_floor_WK),
+            ventilationwk: Math.round(project[scenario].ventilation.average_ventilation_WK),
+            infiltrationwk: Math.round(project[scenario].ventilation.average_infiltration_WK),
+            windowswk: Math.round(project[scenario].fabric.total_window_WK),
+            wallswk: Math.round(project[scenario].fabric.total_wall_WK),
+            roofwk: Math.round(project[scenario].fabric.total_roof_WK),
+            thermalbridgewk: Math.round(project[scenario].fabric.thermal_bridging_heat_loss),
+            totalwk: Math.round(project[scenario].fabric.total_floor_WK + project[scenario].ventilation.average_WK + project[scenario].fabric.total_window_WK + project[scenario].fabric.total_wall_WK + project[scenario].fabric.total_roof_WK + project[scenario].fabric.thermal_bridging_heat_loss)
+        }
+    }
+    else {
+        return {
+            floorwk: 0,
+            ventilationwk: 0,
+            infiltrationwk: 0,
+            windowswk: 0,
+            wallswk: 0,
+            roofwk: 0,
+            thermalbridgewk: 0,
+            totalwk: 0
+        }
+    }
+}
+function calculateRedShade(value, calibrateMax) {
+    var calibrateMax = 292;
+    return "rgba(255,0,0, " + (value / calibrateMax) + ")";
+}
+function generateHouseMarkup(heatlossData) {
+
+    var uscale = 30;
+    var sFloor = Math.sqrt(heatlossData.floorwk / uscale);
+    var sVentilation = Math.sqrt(heatlossData.ventilationwk / uscale);
+    var sInfiltration = Math.sqrt(heatlossData.infiltrationwk / uscale);
+    var sWindows = Math.sqrt(heatlossData.windowswk / uscale);
+    var sWalls = Math.sqrt(heatlossData.wallswk / uscale);
+    var sRoof = Math.sqrt(heatlossData.roofwk / uscale);
+    var sThermal = Math.sqrt(heatlossData.thermalbridgewk / uscale);
+    var html = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\
+     width="444px" height="330.5px" viewBox="0 0 444 330.5" enable-background="new 0 0 444 330.5" xml:space="preserve">\
+     <path fill="none" stroke="#F0533C" stroke-width="6" stroke-miterlimit="10" d="M106.8,108.1"/>\
+     <polyline fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" points="316.6,108.1 316.6,263.4 106.8,263.4 \
+     106.8,230.9 "/>\
+     <polyline fill="none" stroke="#F0533C" stroke-width="11" stroke-miterlimit="10" points="95.7,119.5 211.7,33.5 327.6,119.5 "/>\
+     <path fill="none" stroke="#F0533C" stroke-width="6" stroke-miterlimit="10" d="M57.8,240.6"/>\
+     <line fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="195.6" x2="106.5" y2="160.7"/>\
+     <line opacity="0.4" fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="160.7" x2="106.5" y2="125.8"/>\
+     <line fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.8" y1="125.8" x2="106.8" y2="107.8"/>\
+     <polygon id="roof" fill="#F0533C" transform="translate(270,60) scale(' + sRoof + ')" points="6.9,-23.6 -6.9,-5.4 7.7,5.6 21.5,-12.7 28.5,-7.4 24.9,-32.3 -0.1,-28.9 "/>\
+     <polygon id="windows" transform="translate(92,144) scale(-' + sWindows + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
+     <polygon id="ventilation" transform="translate(92,235) scale(-' + sVentilation + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
+     <polygon id="infiltration" transform="translate(140,65) scale(-' + sInfiltration + ') rotate(52)" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
+     <polygon id="wall" transform="translate(330,242) scale(' + sWalls + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
+     <polygon id="thermal-bridging" transform="translate(330,144) scale(' + sThermal + ')" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>\
+     <polygon id="floor" transform="translate(213,278) scale(' + sFloor + ')" fill="#F0533C" points="9.1,22.9 9.1,0 -9.1,0 -9.1,22.9 -17.9,22.9 0,40.6 17.9,22.9 "/>\
+     <text transform="matrix(1 0 0 1 191.0084 172.7823)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="14">TOTAL </tspan><tspan x="-5.4" y="16.8" fill="#F0533C" font-size="14">' + heatlossData.totalwk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 328.5163 95)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Thermal Bridging</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.thermalbridgewk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 230.624 21.1785)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Roof</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.roofwk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 330.5875 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Walls</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.wallswk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 53.3572 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Planned ventilation</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.ventilationwk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 150.0000 21)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Draughts</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.infiltrationwk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 35.0902 90.1215)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Windows and doors</tspan><tspan x="11.2" y="12" fill="#F0533C" font-size="11">' + heatlossData.windowswk + ' W/K</tspan></text>\
+     <text transform="matrix(1 0 0 1 248.466 283.9302)"><tspan x="0" y="0" fill="#F0533C" font-family="Karla-Bold" font-size="11">Floor</tspan><tspan x="0" y="12" fill="#F0533C" font-size="11">' + heatlossData.floorwk + ' W/K</tspan></text>\
+     <g opacity="0.4">\
+     <polygon fill="#F0533C" points="110.1,133.2 102.8,128.8 102.8,129.9 110.1,134.3 	"/>\
+     <polygon fill="#F0533C" points="110.1,141.5 102.8,137.1 102.8,138.2 110.1,142.6 	"/>\
+     <polygon fill="#F0533C" points="110.1,149.8 102.8,145.4 102.8,146.4 110.1,150.8 	"/>\
+     <polygon fill="#F0533C" points="110.1,158 102.8,153.6 102.8,154.7 110.1,159.1 	"/>\
+     </g>\
+     <line opacity="0.4" fill="none" stroke="#F0533C" stroke-width="8" stroke-miterlimit="10" x1="106.5" y1="230.7" x2="106.5" y2="195.8"/>\
+     <g opacity="0.4">\
+     <polygon fill="#F0533C" points="110.1,203.2 102.8,198.8 102.8,199.9 110.1,204.3 	"/>\
+     <polygon fill="#F0533C" points="110.1,211.5 102.8,207.1 102.8,208.2 110.1,212.6 	"/>\
+     <polygon fill="#F0533C" points="110.1,219.8 102.8,215.4 102.8,216.4 110.1,220.8 	"/>\
+     <polygon fill="#F0533C" points="110.1,228 102.8,223.6 102.8,224.7 110.1,229.1 	"/>\
+     </g>\
+     </svg>'
+    return html;
+}
+function getEnergyDemandData(scenarios) {
+    var data = {};
+    for (var i = 0; i < scenarios.length; i++) {
+        data[scenarios[i]] = [];
+        var electric = 0;
+        var gas = 0;
+        var other = 0;
+        if (typeof project[scenarios[i]] !== "undefined") {
+            if (typeof project[scenarios[i]].fuel_totals !== "undefined") {
+                for (var fuel in project[scenarios[i]].fuel_totals) {
+                    if (project[scenarios[i]].fuels[fuel].category == 'Electricity')
+                        electric += project[scenarios[i]].fuel_totals[fuel].quantity;
+                    else if (project[scenarios[i]].fuels[fuel].category == 'Gas')
+                        gas += project[scenarios[i]].fuel_totals[fuel].quantity;
+                    else if (fuel != 'generation')
+                        other += project[scenarios[i]].fuel_totals[fuel].quantity;
+                }
+                data[scenarios[i]].push({value: gas, label: 'Gas', variance: gas * 0.3});
+                data[scenarios[i]].push({value: electric, label: 'Electric', variance: electric * 0.3});
+                data[scenarios[i]].push({value: other, label: 'Other', variance: other * 0.3});
+            }
+        }
+        if (max_value < (gas + electric + other))
+            max_value = gas + electric + other + 5000;
+    }
+
+
+    data.bills = [
+        {
+            value: 0,
+            label: 'Gas',
+        },
+        {value: 0,
+            label: 'Electric',
+        },
+        {
+            value: 0,
+            label: "Other"
+        }
+    ];
+    for (var fuel in project['master'].currentenergy.use_by_fuel) {
+        var f_use = project['master'].currentenergy.use_by_fuel[fuel];
+        if (project['master'].fuels[fuel].category == 'Gas')
+            data.bills[0].value += f_use.annual_use;
+        else if (project['master'].fuels[fuel].category == 'Electricity')
+            data.bills[1].value += f_use.annual_use;
+        else
+            data.bills[2].value += f_use.annual_use;
+    }
+    data.bills[1].value += project['master'].currentenergy.generation.fraction_used_onsite * project['master'].currentenergy.generation.annual_generation; // We added consumption coming from generation
+    if (max_value < (data.bills[0].value + data.bills[1].value + 1.0 * data.bills[2].value))
+        max_value = data.bills[0].value + data.bills[1].value + 1.0 * data.bills[2].value + 5000;
+    return data;
+}
+function getPrimaryEnergyUseData(scenarios) {
+    var primaryEnergyUseData = {};
+    primaryEnergyUseData.max = 500;
+    primaryEnergyUseData.min = 0;
+    for (var i = 0; i < scenarios.length; i++) {
+        primaryEnergyUseData[scenarios[i]] = [];
+        if (typeof project[scenarios[i]] !== "undefined") {
+            if (typeof project[scenarios[i]].primary_energy_use_by_requirement !== "undefined") {
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] / data.TFA, label: 'Water Heating'});
+                }
+
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] / data.TFA, label: 'Space Heating'});
+                }
+
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['cooking'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['cooking'] / data.TFA, label: 'Cooking'});
+                }
+
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['appliances'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['appliances'] / data.TFA, label: 'Appliances'});
+                }
+
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['lighting'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['lighting'] / data.TFA, label: 'Lighting'});
+                }
+
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] !== "undefined") {
+                    primaryEnergyUseData[scenarios[i]].push({value: project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] / data.TFA, label: 'Fans and Pumps'});
+                }
+                if (project[scenarios[i]].use_generation == 1 && project[scenarios[i]].fuel_totals['generation'].primaryenergy < 0) { // we offset the stack displacing it down for the amount of renewables
+                    var renewable_left = -project[scenarios[i]].fuel_totals['generation'].primaryenergy / data.TFA; // fuel_totals['generation'].primaryenergy is negative
+                    primaryEnergyUseData[scenarios[i]].forEach(function (use) {
+                        if (use.value <= renewable_left) {
+                            renewable_left -= use.value;
+                            use.value = -use.value;
+                        }
+                        if (use.value > renewable_left) {
+                            primaryEnergyUseData[scenarios[i]].push({value: use.value - renewable_left, label: use.label}); // we create another bar with the same color than current use with the amount that is still positive
+                            use.value = -renewable_left; // the amount offseted
+                            renewable_left = 0;
+                        }
+                    });
+                }
+            }
+        }
+        if (typeof project[scenarios[i]] !== "undefined" && project[scenarios[i]].primary_energy_use_m2 > primaryEnergyUseData.max)
+            primaryEnergyUseData.max = project[scenarios[i]].primary_energy_use_m2;
+        if (typeof project[scenarios[i]] !== "undefined" && project[scenarios[i]].use_generation == 1 && project[scenarios[i]].fuel_totals['generation'].primaryenergy / project[scenarios[i]].TFA < primaryEnergyUseData.min)  // fuel_totals['generation'] is negative
+            primaryEnergyUseData.min = project[scenarios[i]].fuel_totals['generation'].primaryenergy / project[scenarios[i]].TFA;
+    }
+
+    primaryEnergyUseData.bills = [
+        {
+            value: data.currentenergy.primaryenergy_annual_kwhm2,
+            label: "Non categorized"},
+        {
+            value: -data.currentenergy.generation.primaryenergy / data.TFA,
+            label: "Non categorized"}
+    ]
+
+    return primaryEnergyUseData;
+}
+function createComforTable(options, tableID, chosenValue) {
+    $("#" + tableID + " .comfort-table-td").remove();
+    for (var i = options.length - 1; i >= 0; i--) {
+
+        if (options[i].title == chosenValue) {
+            var background = options[i].color;
+            $("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'><img src='../Modules/assessment/img-assets/" + options[i].color + "_box.jpg' style='height:30px;width:30px;vertical-align:middle' /></td>"));
+        }
+        else {
+            var background = 'transparent';
+            $("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'></td>"));
+        }
+        //$("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'  style='background:" + background + "'></td>"));
+    }
+}
+
+
+function carboncoop_UpdateUI() {
+   
+}
+
