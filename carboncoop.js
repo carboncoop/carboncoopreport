@@ -1,13 +1,36 @@
 console.log('debug carboncoop.js');
+
 function carboncoop_initUI() {
     data = project['master'];
-    var scenarios = ["master", "scenario1", "scenario2", "scenario3"];
 
+    // Initialize choices scenario check boxes
+    $('#scenario-choices-boxes').append('<li><input type="checkbox" checked disabled value="master" />Master</li>');
+    for (var scenario in project) {
+        var checked = '';
+        if (scenario != "master") {
+            if (scenario == 'scenario1' || scenario == 'scenario2' || scenario == 'scenario3')
+                checked = 'checked';
+            $('#scenario-choices-boxes').append('<li><input type="checkbox" ' + checked + ' value="' + scenario + '" /> Scenario' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</li>');
+        }
+    }
+
+    // Add static content
     load_font();
     add_events();
+    add_prioirities_figure();
     add_featured_image();
     add_date();
-    add_prioirities_figure(scenarios);
+    add_commentary();
+
+    // Add scenarios content
+    carboncoop_UpdateUI();
+}
+
+function carboncoop_UpdateUI() {
+    var scenarios = [];
+    $('#scenario-choices-boxes input:checked').each(function () {
+        scenarios.push(this.value);
+    });
     add_scenario_names(scenarios);
     add_performance_summary_figure(scenarios);
     add_heat_loss_summary_figure(scenarios);
@@ -21,7 +44,6 @@ function carboncoop_initUI() {
     add_comfort_tables(scenarios);
     add_health_data(scenarios);
     add_measures_summary_tables(scenarios);
-    add_commentary();
     add_measures_complete_tables(scenarios);
     add_comparison_tables(scenarios);
 }
@@ -43,14 +65,8 @@ function add_events() {
     window.onbeforeprint = function () {
         hide_sidebar();
     };
-    $("body").on("click", ".js-house-heatloss-diagram-picker span", function (e) {
-        var scenario = $(this).data("scenario");
-        $(".js-house-heatloss-diagram-picker span").removeClass("selected");
-        $(this).addClass("selected");
-        $(".js-house-heatloss-diagrams-wrapper .centered-house").css({
-            "display": "none"
-        });
-        $("div[data-scenario-diagram='" + scenario + "']").css("display", "block");
+    $('body').on('click', '#reload', function () {
+        carboncoop_UpdateUI();
     });
 }
 function add_featured_image() {
@@ -65,7 +81,7 @@ function add_date() {
     var months_numbers = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     $('#report_date').html(date.getDate() + '-' + months_numbers[date.getMonth()] + '-' + date.getFullYear());
 }
-function add_prioirities_figure(scenarios) {
+function add_prioirities_figure() {
     //  Shows retrofit priorities - in order - identifying whether interested in retrofit for cost, comfort or carbon reasons etc.
 
     var priorities = {};
@@ -139,11 +155,11 @@ function add_prioirities_figure(scenarios) {
     }
 }
 function add_scenario_names(scenarios) {
+    $('.scenarios-list').html('');
     scenarios.forEach(function (scenario) {
         if (scenario != 'master')
             $('.scenarios-list').append('<li><p>Scenario ' + scenario.split('scenario')[1] + ': ' + project[scenario].scenario_name + '</p></li>');
-    })
-
+    });
 }
 function add_performance_summary_figure(scenarios) {
     // Quick overview/summary - Benchmarking Bar Charts. Need to ensure that all scenarios displayed, not just one as on current graph.
@@ -166,7 +182,15 @@ function add_performance_summary_figure(scenarios) {
         "rgb(236, 157, 163)",
         "rgb(164, 211, 226)",
         "rgb(184, 237, 234)",
-        "rgb(251, 212, 139)"
+        "rgb(251, 212, 139)",
+        "rgb(236, 157, 100)",
+        "rgb(164, 211, 100)",
+        "rgb(184, 237, 100)",
+        "rgb(251, 212, 100)",
+        "rgb(236, 157, 0)",
+        "rgb(164, 211, 0)",
+        "rgb(184, 237, 0)",
+        "rgb(251, 212, 0)"
     ];
 
     var options = {
@@ -260,106 +284,84 @@ function add_performance_summary_figure(scenarios) {
     // };
     // targetbarCarboncoop("energy-use-per-person", options);
 
-    $(".key-square--master").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_your_home.jpg" />');
-    $(".key-square--scenario1").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_1.jpg" />');
-    $(".key-square--scenario2").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_2.jpg" />');
-    $(".key-square--scenario3").html('<img src="' + path + 'Modules/assessment/img-assets/figure_2_scenario_3.jpg" />');
+    $('#performace-summary-key ul').html('');
+    for (var i = 0; i < scenarios.length; i++) {
+        if (scenarios[i] == 'master')
+            $('#performace-summary-key ul').append('<li style="display: inline-block"><div style="width:15px; height:15px;background-color:' + colors[i] + '; display:inline-block; margin - right: 55px"></div> Your home now</li>');
+        else
+            $('#performace-summary-key ul').append('<li style="display: inline-block"><div style="width:15px; height:15px;background-color:' + colors[i] + '; display:inline-block; margin - right: 55px"></div> Scenario ' + scenarios[i].split('scenario')[1] + ': ' + project[scenarios[i]].scenario_name + '</li>');
+    }
 }
 function add_heat_loss_summary_figure(scenarios) {
-    heatlossDataMaster = heatlossData("master");
-    heatlossDataScenario1 = heatlossData("scenario1");
-    heatlossDataScenario2 = heatlossData("scenario2");
-    heatlossDataScenario3 = heatlossData("scenario3");
-    // if (printmode != true){
-    // 	$("#house-heatloss-diagram-scenario1, #house-heatloss-diagram-scenario2, #house-heatloss-diagram-scenario3, .js-house-heatloss-diagrams-wrapper p").css({
-    // 		"display": "none"
-    // 	});
-    // } else {
-    // 	$(".js-house-heatloss-diagram-picker").css("display", "none");
-    // }
+    $('.js-house-heatloss-diagrams-wrapper').html("<ul class='js-house-heatloss-diagram-picker house-heatloss-diagram-picker'></ul>");
+    // Add list to choose which scenario to show
+    scenarios.forEach(function (scenario) {
+        if (scenario == 'master') {
+            var selected = "selected";
+            var name = "Your home now";
+        }
+        else {
+            var selected = "";
+            var name = "Scenario " + scenario.split('scenario')[1];
+        }
+        $('.house-heatloss-diagram-picker').append('<li class="' + selected + '" data-scenario="' + scenario + '">' + name + '</li>');
+    });
 
-    $("#house-heatloss-diagram-master .js-svg").html($(generateHouseMarkup(heatlossDataMaster)));
-    $("#house-heatloss-diagram-scenario1 .js-svg").html($(generateHouseMarkup(heatlossDataScenario1)));
-    $("#house-heatloss-diagram-scenario2 .js-svg").html($(generateHouseMarkup(heatlossDataScenario2)));
-    $("#house-heatloss-diagram-scenario3 .js-svg").html($(generateHouseMarkup(heatlossDataScenario3)));
-    // termal bridging right pointing arrow: <polygon opacity="0.5" fill="#F0533C" points="22.9,-9.1 0,-9.1 0,9.1 22.9,9.1 22.9,17.9 40.6,0 22.9,-17.9 "/>
+    // Add the diagrams
+    scenarios.forEach(function (scenario) {
+        var house_markup = generateHouseMarkup(heatlossData(scenario));
+        var html = '<div class="bar-chart-container centered-house no-break" id="house-heatloss-diagram-' + scenario + '" data-scenario-diagram="' + scenario + '" style="display:none">';
+        if (scenario == 'master')
+            html += '<p>Your home now</p>';
+        else
+            html += '<p>Scenario ' + scenario.split('scenario')[1] + '</p>';
+        html += '<div class="js-svg">' + house_markup + '</div>';
+        html += '</div>';
+        $('.js-house-heatloss-diagrams-wrapper').append(html);
+    });
+
+    // Events
+    $("body").on("click", ".js-house-heatloss-diagram-picker li", function (e) {
+        var scenario = $(this).data("scenario");
+        $(".js-house-heatloss-diagram-picker li").removeClass("selected");
+        $(this).addClass("selected");
+        $(".js-house-heatloss-diagrams-wrapper .centered-house").css({
+            "display": "none"
+        });
+        $("div[data-scenario-diagram='" + scenario + "']").css("display", "block");
+    });
+
+    // Show the diagram for the master scenario
+    $('.js-house-heatloss-diagram-picker [data-scenario=master]').click();
+
 }
 function add_heat_balance_figure(scenarios) {
     // Heat transfer per year by element. The gains and losses here need to balance. 
-    // data.annual_losses_kWh_m2 appears to be empty, so there are currently no negative stacks on this chart
-    var values = [];
-    for (var i = 0; i < scenarios.length; i++) {
-        if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].kwhdpp != "undefined") {
-            values[i] = Math.round(project[scenarios[i]].kwhdpp.toFixed(1));
-        }
-        else {
-            values[i] = 0;
-        }
-    }
-
     var dataFig4 = [];
     var max_value = 250; // used to set the height of the chart
-    if (typeof project['master'] != "undefined" && typeof project["master"].annual_useful_gains_kWh_m2 != "undefined") {
-        dataFig4.push({
-            label: 'Your Home Now',
-            value: [
-                {value: project["master"].annual_useful_gains_kWh_m2["Internal"], label: 'Internal Gains'},
-                {value: project["master"].annual_useful_gains_kWh_m2["Solar"], label: 'Solar Gains'},
-                {value: project["master"].space_heating.annual_heating_demand_m2, label: 'Space Heating Requirement'},
-                {value: -project["master"].annual_losses_kWh_m2["fabric"], label: 'Fabric Losses'},
-                {value: -(project["master"].annual_losses_kWh_m2["ventilation"] + project["master"].annual_losses_kWh_m2["infiltration"]), label: 'Ventilation and Infiltration Losses'},
-            ]
-        });
-        if (max_value < (project["master"].annual_losses_kWh_m2["fabric"] + project["master"].annual_losses_kWh_m2["ventilation"] + project["master"].annual_losses_kWh_m2["infiltration"]))
-            max_value = 50 + project["master"].annual_losses_kWh_m2["fabric"] + project["master"].annual_losses_kWh_m2["ventilation"] + project["master"].annual_losses_kWh_m2["infiltration"];
-    }
 
-    if (typeof project['scenario1'] != "undefined" && typeof project["scenario1"].annual_useful_gains_kWh_m2 != "undefined") {
-        dataFig4.push({
-            label: 'Scenario 1',
-            value: [
-                {value: project["scenario1"].annual_useful_gains_kWh_m2["Internal"], label: 'Internal Gains'},
-                {value: project["scenario1"].annual_useful_gains_kWh_m2["Solar"], label: 'Solar Gains'},
-                {value: project["scenario1"].space_heating.annual_heating_demand_m2, label: 'Space Heating Requirement'},
-                {value: -project["scenario1"].annual_losses_kWh_m2["fabric"], label: 'Fabric Losses'},
-                {value: -(project["scenario1"].annual_losses_kWh_m2["ventilation"] + project["scenario1"].annual_losses_kWh_m2["infiltration"]), label: 'Ventilation and Infiltration Losses'},
-            ]
-        });
-        if (max_value < (project["scenario1"].annual_losses_kWh_m2["fabric"] + project["scenario1"].annual_losses_kWh_m2["ventilation"] + project["scenario1"].annual_losses_kWh_m2["infiltration"]))
-            max_value = 50 + project["scenario1"].annual_losses_kWh_m2["fabric"] + project["scenario1"].annual_losses_kWh_m2["ventilation"] + project["scenario1"].annual_losses_kWh_m2["infiltration"];
-    }
+    scenarios.forEach(function (scenario) {
+        if (scenario == 'master')
+            var label = "Your home now";
+        else
+            var label = "Scenario " + scenario.split('scenario')[1];
+        if (typeof project[scenario] != "undefined" && typeof project[scenario].annual_useful_gains_kWh_m2 != "undefined") {
+            dataFig4.push({
+                label: label,
+                value: [
+                    {value: project[scenario].annual_useful_gains_kWh_m2["Internal"], label: 'Internal Gains'},
+                    {value: project[scenario].annual_useful_gains_kWh_m2["Solar"], label: 'Solar Gains'},
+                    {value: project[scenario].space_heating.annual_heating_demand_m2, label: 'Space Heating Requirement'},
+                    {value: -project[scenario].annual_losses_kWh_m2["fabric"], label: 'Fabric Losses'},
+                    {value: -(project[scenario].annual_losses_kWh_m2["ventilation"] + project[scenario].annual_losses_kWh_m2["infiltration"]), label: 'Ventilation and Infiltration Losses'},
+                ]
+            });
+            if (max_value < (project[scenario].annual_losses_kWh_m2["fabric"] + project[scenario].annual_losses_kWh_m2["ventilation"] + project[scenario].annual_losses_kWh_m2["infiltration"]))
+                max_value = 50 + project[scenario].annual_losses_kWh_m2["fabric"] + project[scenario].annual_losses_kWh_m2["ventilation"] + project[scenario].annual_losses_kWh_m2["infiltration"];
+        }
+    });
 
-    if (typeof project['scenario2'] != "undefined" && typeof project["scenario2"].annual_useful_gains_kWh_m2 != "undefined") {
-        dataFig4.push({
-            label: 'Scenario 2',
-            value: [
-                {value: project["scenario2"].annual_useful_gains_kWh_m2["Internal"], label: 'Internal Gains'},
-                {value: project["scenario2"].annual_useful_gains_kWh_m2["Solar"], label: 'Solar Gains'},
-                {value: project["scenario2"].space_heating.annual_heating_demand_m2, label: 'Space Heating Requirement'},
-                {value: -project["scenario2"].annual_losses_kWh_m2["fabric"], label: 'Fabric Losses'},
-                {value: -(project["scenario2"].annual_losses_kWh_m2["ventilation"] + project["scenario2"].annual_losses_kWh_m2["infiltration"]), label: 'Ventilation and Infiltration Losses'},
-            ]
-        });
-        if (max_value < (project["scenario2"].annual_losses_kWh_m2["fabric"] + project["scenario2"].annual_losses_kWh_m2["ventilation"] + project["scenario2"].annual_losses_kWh_m2["infiltration"]))
-            max_value = 50 + project["scenario2"].annual_losses_kWh_m2["fabric"] + project["scenario2"].annual_losses_kWh_m2["ventilation"] + project["scenario2"].annual_losses_kWh_m2["infiltration"];
-    }
-
-    if (typeof project['scenario3'] != "undefined" && typeof project["scenario3"].annual_useful_gains_kWh_m2 != "undefined") {
-        dataFig4.push({
-            label: 'Scenario 3',
-            value: [
-                {value: project["scenario3"].annual_useful_gains_kWh_m2["Internal"], label: 'Internal Gains'},
-                {value: project["scenario3"].annual_useful_gains_kWh_m2["Solar"], label: 'Solar Gains'},
-                {value: project["scenario3"].space_heating.annual_heating_demand_m2, label: 'Space Heating Requirement'},
-                {value: -project["scenario3"].annual_losses_kWh_m2["fabric"], label: 'Fabric Losses'},
-                {value: -(project["scenario3"].annual_losses_kWh_m2["ventilation"] + project["scenario3"].annual_losses_kWh_m2["infiltration"]), label: 'Ventilation and Infiltration Losses'},
-            ]
-        });
-        if (max_value < (project["scenario3"].annual_losses_kWh_m2["fabric"] + project["scenario3"].annual_losses_kWh_m2["ventilation"] + project["scenario3"].annual_losses_kWh_m2["infiltration"]))
-            max_value = 50 + project["scenario3"].annual_losses_kWh_m2["fabric"] + project["scenario3"].annual_losses_kWh_m2["ventilation"] + project["scenario3"].annual_losses_kWh_m2["infiltration"];
-    }
-
-    var EnergyDemand = new BarChart({
+    var HeatBalance = new BarChart({
         chartTitle: 'Heat Balance',
         chartTitleColor: 'rgb(87, 77, 86)',
         yAxisLabelColor: 'rgb(87, 77, 86)',
@@ -369,8 +371,8 @@ function add_heat_balance_figure(scenarios) {
         width: 1200.35,
         chartHeight: 600,
         division: 50,
-        barWidth: 110,
-        barGutter: 120,
+        barWidth: 440 / dataFig4.length,
+        barGutter: 480 / dataFig4.length,
         chartHigh: max_value,
         chartLow: -max_value,
         font: "Karla",
@@ -385,19 +387,26 @@ function add_heat_balance_figure(scenarios) {
         data: dataFig4,
     });
     $('#heat-balance').html('');
-    EnergyDemand.draw('heat-balance');
+    HeatBalance.draw('heat-balance');
 }
 function add_space_heating_demand_figure(scenarios) {
-    var values = [];
+    var dataFig = [];
     var max_value = 250; // used to set the height of the chart
+    var label = '';
+    var value = 0;
     for (var i = 0; i < scenarios.length; i++) {
         if (typeof project[scenarios[i]] != "undefined" && project[scenarios[i]].space_heating_demand_m2 != "undefined") {
-            values[i] = Math.round(project[scenarios[i]].space_heating_demand_m2);
-            if (max_value < values[i])
-                max_value = values[i] + 50;
+            value = Math.round(project[scenarios[i]].space_heating_demand_m2);
+            if (scenarios[i] == 'master')
+                label = 'Your home now';
+            else
+                label = "Scenario " + scenarios[i].split('scenario')[1];
+            dataFig.push({label: label, value: value});
+            if (max_value < value)
+                max_value = value + 50;
         }
         else {
-            values[i] = 0;
+            dataFig.push({label: label, value: 0});
         }
     }
 
@@ -412,8 +421,8 @@ function add_space_heating_demand_figure(scenarios) {
         chartHigh: max_value,
         width: 1200,
         chartHeight: 600,
-        barWidth: 110,
-        barGutter: 80,
+        barWidth: 440 / dataFig.length,
+        barGutter: 380 / dataFig.length,
         defaultBarColor: 'rgb(157,213,203)',
         // barColors: {
         // 	'Space heating': 'rgb(157,213,203)',
@@ -449,12 +458,7 @@ function add_space_heating_demand_figure(scenarios) {
                 color: 'rgb(231,37,57)'
             },
         ],
-        data: [
-            {label: 'Your home now ', value: values[0]},
-            {label: 'Scenario 1', value: values[1]},
-            {label: 'Scenario 2', value: values[2]},
-            {label: 'Scenario 3', value: values[3]},
-        ]
+        data: dataFig
     });
     $('#fig-5-space-heating-demand').html('');
     SpaceHeatingDemand.draw('fig-5-space-heating-demand');
@@ -462,6 +466,7 @@ function add_space_heating_demand_figure(scenarios) {
 function add_energy_demand_figure(scenarios) {
     max_value = 40000;
     var energyDemandData = getEnergyDemandData(scenarios);
+    var dataFig = prepare_data_for_graph(energyDemandData);
     var EnergyDemand = new BarChart({
         chartTitleColor: 'rgb(87, 77, 86)',
         yAxisLabelColor: 'rgb(87, 77, 86)', barLabelsColor: 'rgb(87, 77, 86)',
@@ -472,25 +477,25 @@ function add_energy_demand_figure(scenarios) {
         chartHeight: 600,
         division: 5000,
         chartHigh: max_value,
-        barWidth: 110, barGutter: 80,
+        barWidth: 550 / dataFig.length,
+        barGutter: 400 / dataFig.length,
         defaultBarColor: 'rgb(231,37,57)', defaultVarianceColor: 'rgb(2,37,57)',
         barColors: {
             'Gas': 'rgb(236,102,79)',
             'Electric': 'rgb(240,212,156)',
             'Other': 'rgb(24,86,62)',
-        }, data: [
-            {label: 'Your Home Now', value: energyDemandData.master},
-            {label: 'Bills data', value: energyDemandData.bills},
-            {label: 'Scenario 1', value: energyDemandData.scenario1},
-            {label: 'Scenario 2', value: energyDemandData.scenario2},
-            {label: 'Scenario 3', value: energyDemandData.scenario3},
-        ]
+        }, data: dataFig
     });
     $('#energy-demand').html('');
     EnergyDemand.draw('energy-demand');
 }
 function add_primary_energy_usage_figure(scenarios) {
     var primaryEnergyUseData = getPrimaryEnergyUseData(scenarios);
+    var max = primaryEnergyUseData.max;
+    var min = primaryEnergyUseData.min - 50;
+    delete primaryEnergyUseData.max;
+    delete primaryEnergyUseData.min;
+    var dataGraph = prepare_data_for_graph(primaryEnergyUseData);
     var primaryEneryUse = new BarChart({
         chartTitleColor: 'rgb(87, 77, 86)',
         yAxisLabelColor: 'rgb(87, 77, 86)',
@@ -501,10 +506,10 @@ function add_primary_energy_usage_figure(scenarios) {
         width: 1200,
         chartHeight: 600,
         division: 50,
-        barWidth: 110,
-        barGutter: 80,
-        chartHigh: primaryEnergyUseData.max,
-        chartLow: primaryEnergyUseData.min - 50,
+        barWidth: 550 / dataGraph.length,
+        barGutter: 400 / dataGraph.length,
+        chartHigh: max,
+        chartLow: min,
         defaultBarColor: 'rgb(157,213,203)',
         barColors: {
             'Water Heating': 'rgb(157,213,203)',
@@ -514,12 +519,7 @@ function add_primary_energy_usage_figure(scenarios) {
             'Lighting': 'rgb(236,102,79)', 'Fans and Pumps': 'rgb(246, 167, 7)', 'Non categorized': 'rgb(131, 51, 47)',
             // 'Generation': 'rgb(200,213,203)'
         },
-        data: [{label: 'Your Home Now', value: primaryEnergyUseData.master},
-            {label: 'Bills data', value: primaryEnergyUseData.bills},
-            {label: 'Scenario 1', value: primaryEnergyUseData.scenario1},
-            {label: 'Scenario 2', value: primaryEnergyUseData.scenario2},
-            {label: 'Scenario 3', value: primaryEnergyUseData.scenario3}
-        ],
+        data: dataGraph,
         targets: [
             {
                 label: 'UK Average 360 kWh/m' + String.fromCharCode(178) + '.a',
@@ -548,26 +548,14 @@ function add_carbon_dioxide_per_m2_figure(scenarios) {
     var array = [{value: project["master"].currentenergy.total_co2m2}, {value: -data.currentenergy.generation.annual_CO2 / data.TFA}];
     carbonDioxideEmissionsData.push({label: "Bills data", value: array});
 
-    if (typeof project["scenario1"] !== "undefined" && typeof project["scenario1"].kgco2perm2 !== "undefined") {
-        var array = [{value: project["scenario1"].kgco2perm2}];
-        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario1'].fuel_totals['generation'].annualco2 / data.TFA});
-        carbonDioxideEmissionsData.push({label: "Scenario 1", value: array});
-    }
-
-    if (typeof project["scenario2"] !== "undefined" && typeof project["scenario2"].kgco2perm2 !== "undefined") {
-        var array = [{value: project["scenario2"].kgco2perm2}];
-        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario2'].fuel_totals['generation'].annualco2 / data.TFA});
-        carbonDioxideEmissionsData.push({label: "Scenario 2", value: array});
-    }
-
-    if (typeof project["scenario3"] !== "undefined" && typeof project["scenario3"].kgco2perm2 !== "undefined") {
-        var array = [{value: project["scenario3"].kgco2perm2}];
-        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario3'].fuel_totals['generation'].annualco2 / data.TFA});
-        carbonDioxideEmissionsData.push({label: "Scenario 3", value: array});
-    }
+    scenarios.forEach(function (scenario) {
+        if (scenario != 'master') {
+            var array = [{value: project[scenario].kgco2perm2}];
+            if (project[scenario].use_generation == 1 && project[scenario].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+                array.push({value: project[scenario].fuel_totals['generation'].annualco2 / data.TFA});
+            carbonDioxideEmissionsData.push({label: "Scenario " + scenario.split('scenario')[1], value: array});
+        }
+    });
 
     carbonDioxideEmissionsData.forEach(function (scenario) {
         if (scenario.value > max)
@@ -582,8 +570,8 @@ function add_carbon_dioxide_per_m2_figure(scenarios) {
         width: 1200,
         chartHeight: 600,
         chartHigh: max,
-        barWidth: 110,
-        barGutter: 80,
+        barWidth: 550 / carbonDioxideEmissionsData.length,
+        barGutter: 400 / carbonDioxideEmissionsData.length,
         defaultBarColor: 'rgb(157,213,203)',
         data: carbonDioxideEmissionsData,
         targets: [
@@ -612,26 +600,14 @@ function add_carbon_dioxide_per_person_figure(scenarios) {
     var array = [{value: project["master"].TFA * project["master"].currentenergy.total_co2m2 / project["master"].occupancy}, {value: -data.currentenergy.generation.annual_CO2 / project["master"].occupancy}];
     carbonDioxideEmissionsPerPersonData.push({label: "Bills data", value: array});
 
-    if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
-        var array = [{value: project["scenario1"].annualco2 / project["master"].occupancy}];
-        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario1'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 1", value: array});
-    }
-
-    if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
-        var array = [{value: project["scenario2"].annualco2 / project["master"].occupancy}];
-        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario2'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: array});
-    }
-
-    if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].annualco2 !== "undefined" && typeof project["master"].occupancy !== "undefined") {
-        var array = [{value: project["scenario3"].annualco2 / project["master"].occupancy}];
-        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario3'].fuel_totals['generation'].annualco2 / project["master"].occupancy});
-        carbonDioxideEmissionsPerPersonData.push({label: "Scenario 2", value: array});
-    }
+    scenarios.forEach(function (scenario) {
+        if (scenario != 'master') {
+            var array = [{value: project[scenario].annualco2 / project["master"].occupancy}];
+            if (project[scenario].use_generation == 1 && project[scenario].fuel_totals['generation'].annualco2 < 0) // project[scenario].kgco2perm2 has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+                array.push({value: project[scenario].fuel_totals['generation'].annualco2 / project["master"].occupancy});
+            carbonDioxideEmissionsPerPersonData.push({label: "Scenario " + scenario.split('scenario')[1], value: array});
+        }
+    });
 
     var max = 8000;
     carbonDioxideEmissionsPerPersonData.forEach(function (scenario) {
@@ -650,8 +626,8 @@ function add_carbon_dioxide_per_person_figure(scenarios) {
         chartHigh: max,
         width: 1200,
         chartHeight: 600,
-        barWidth: 110,
-        barGutter: 70,
+        barWidth: 550 / carbonDioxideEmissionsPerPersonData.length,
+        barGutter: 400 / carbonDioxideEmissionsPerPersonData.length,
         defaultBarColor: 'rgb(157,213,203)', defaultVarianceColor: 'rgb(231,37,57)',
         // barColors: {
         // 	'Space heating': 'rgb(157,213,203)',
@@ -679,35 +655,15 @@ function add_energy_costs_figure(scenarios) {
     if (project['master'].currentenergy.generation.annual_savings > 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
         array.push({value: -project['master'].currentenergy.generation.annual_savings});
     estimatedEnergyCostsData.push({label: "Bills data", value: array});
-    //if (max < project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost)
-    //    max = project["master"].currentenergy.total_cost + 0.3 * project["master"].currentenergy.total_cost;
 
-    if (typeof project["scenario1"] != "undefined" && typeof project["scenario1"].total_cost !== "undefined") {
-        var array = [{value: project["scenario1"].total_cost}];
-        if (project['scenario1'].use_generation == 1 && project['scenario1'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario1'].fuel_totals['generation'].annualcost});
-        estimatedEnergyCostsData.push({label: "Scenario 1", value: array});
-        //if (max < project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost)
-        //  max = project["scenario1"].total_cost + 0.3 * project["scenario1"].total_cost;
-    }
-
-    if (typeof project["scenario2"] != "undefined" && typeof project["scenario2"].total_cost !== "undefined") {
-        var array = [{value: project["scenario2"].total_cost}];
-        if (project['scenario2'].use_generation == 1 && project['scenario2'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario2'].fuel_totals['generation'].annualcost});
-        estimatedEnergyCostsData.push({label: "Scenario 2", value: array});
-        //if (max < project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost)
-        //  max = project["scenario2"].total_cost + 0.3 * project["scenario2"].total_cost;
-    }
-
-    if (typeof project["scenario3"] != "undefined" && typeof project["scenario3"].total_cost !== "undefined") {
-        var array = [{value: project["scenario3"].total_cost}];
-        if (project['scenario3'].use_generation == 1 && project['scenario3'].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
-            array.push({value: project['scenario3'].fuel_totals['generation'].annualcost});
-        estimatedEnergyCostsData.push({label: "Scenario 3", value: array});
-        //if (max < project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost)
-        //  max = project["scenario3"].total_cost + 0.3 * project["scenario3"].total_cost;
-    }
+    scenarios.forEach(function (scenario) {
+        if (scenario != 'master') {
+            var array = [{value: project[scenario].total_cost}];
+            if (project[scenario].use_generation == 1 && project[scenario].fuel_totals['generation'].annualcost < 0) // project[scenario].total_cost has deducted the savings due to renewables, to make the graph clearer we add the savings as negative to give the impression of offset
+                array.push({value: project[scenario].fuel_totals['generation'].annualcost});
+            estimatedEnergyCostsData.push({label: "Scenario " + scenario.split('scenario')[1], value: array});
+        }
+    });
 
     var EstimatedEnergyCosts = new BarChart({
         chartTitleColor: 'rgb(87, 77, 86)',
@@ -720,7 +676,9 @@ function add_energy_costs_figure(scenarios) {
         //chartHigh: max,
         width: 1200,
         chartHeight: 600,
-        barGutter: 80, defaultBarColor: 'rgb(157,213,203)',
+        barWidth: 550 / estimatedEnergyCostsData.length,
+        barGutter: 400 / estimatedEnergyCostsData.length,
+        defaultBarColor: 'rgb(157,213,203)',
         data: estimatedEnergyCostsData
     });
     $('#estimated-energy-cost-comparison').html('');
@@ -905,6 +863,7 @@ function add_health_data(scenarios) {
     }
 }
 function add_measures_summary_tables(scenarios) {
+    $('#ccop-report-measures-summary-tables').html('');
     var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
     scenarios.forEach(function (scenario, index) {
         if (scenario != 'master') {
@@ -930,6 +889,7 @@ function add_commentary() {
     }
 }
 function add_measures_complete_tables(scenarios) {
+    $('#ccop-report-measures-complete-tables').html('');
     var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
     scenarios.forEach(function (scenario, index) {
         if (scenario != 'master') {
@@ -949,6 +909,7 @@ function add_measures_complete_tables(scenarios) {
     });
 }
 function add_comparison_tables(scenarios) {
+    $('#comparison-tables').html('');
     var abc = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r']
     scenarios.forEach(function (scenario, index) {
         if (scenario != 'master') {
@@ -960,6 +921,8 @@ function add_comparison_tables(scenarios) {
         }
     });
 }
+
+/*****************************************************************/
 
 function heatlossData(scenario) {
     if (typeof project[scenario] != "undefined" && typeof project[scenario].fabric != "undefined") {
@@ -1175,9 +1138,19 @@ function createComforTable(options, tableID, chosenValue) {
         //$("#" + tableID + " .extreme-left").after($("<td class='comfort-table-td comfort-table-option " + i + "'  style='background:" + background + "'></td>"));
     }
 }
+function prepare_data_for_graph(data_source) {
+    var dataFig = [];
 
+    // We first add master and bills because it looks better in the graph when they go first
+    if (data_source.master != undefined)
+        dataFig.push({label: 'Your home now', value: data_source.master});
+    if (data_source.bills != undefined)
+        dataFig.push({label: 'Bills data', value: data_source.master});
 
-function carboncoop_UpdateUI() {
+    // Add rst of scenarios
+    for (var scenario in data_source)
+        if (scenario != 'master' && scenario != 'bills')
+            dataFig.push({label: "Scenario " + scenario.split('scenario')[1], value: data_source[scenario]});
 
+    return dataFig;
 }
-

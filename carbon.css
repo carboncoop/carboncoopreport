@@ -543,13 +543,10 @@
 .carbon-report-wrapper .performace-summary-target-bar {
     margin-bottom: 40px; }
 .carbon-report-wrapper #performace-summary-key {
-    margin-bottom: 40px;
     border-top: 1px dashed #e41b3a;
     padding-top: 5px; }
 .carbon-report-wrapper #performace-summary-key li {
-    float: left;
-    width: 25%;
-    padding: 10px 0 20px; }
+    margin: 10px 10px; }
 .carbon-report-wrapper .key-square {
     display: inline-block;
     width: 20px;
@@ -594,19 +591,6 @@
 .house-heatloss-diagrams-wrapper p {
     display: none; }
 
-@media print {
-    .house-heatloss-diagram-picker {
-        display: none; }
-
-    #house-heatloss-diagram-scenario1,
-    #house-heatloss-diagram-scenario2,
-    #house-heatloss-diagram-scenario3,
-    .house-heatloss-diagrams-wrapper p {
-        display: block !important;
-    }
-    #sidebar{display:none;}
-}
-
 /*# sourceMappingURL=carbon.css.map */
 
 
@@ -616,3 +600,17 @@
 }
 .scenario-name{display:none}
 #topgraphic{display:none}
+#scenario-choices{display:block; float:right; margin-top: 50px}
+.carbon-report-wrapper #scenario-choices-boxes{padding-left:25px}
+.carbon-report-wrapper button{float:right}
+
+@media print {
+    .house-heatloss-diagram-picker {
+        display: none; }
+
+    .centered-house,
+    .house-heatloss-diagrams-wrapper p {
+        display: block !important;
+    }
+    #sidebar, #scenario-choices{display:none;}
+}
