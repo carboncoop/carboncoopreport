@@ -14,3 +14,5 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 `git checkout cafs`
 
 The report will be accessible for MHEP users that are members of an organization called "Cumbria Action for Sustainability"
+
+This report depends on the Carbon Coop one

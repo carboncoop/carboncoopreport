@@ -1,13 +1,13 @@
 console.log('debug cumbriaactionforsustainability.js');
 
 var result_html = "";
-$.ajax({url: jspath + "reports/cumbriaactionforsustainability/carboncoop.html", async: false, cache: false, success: function (data) {
+$.ajax({url: jspath + "reports/carboncoop/carboncoop.html", async: false, cache: false, success: function (data) {
         result_html = data;
     }});
 $('#content').html(result_html);
 
 $.ajax({
-    url: jspath + "reports/cumbriaactionforsustainability/carboncoop.js",
+    url: jspath + "reports/carboncoop/carboncoop.js",
     dataType: 'script',
     async: false
 });
