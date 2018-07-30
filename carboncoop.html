@@ -9,6 +9,11 @@
         type: "text/css",
         href: jspath + "reports/carboncoop/carbon.css"
     }).appendTo("head");
+    $.ajax({
+        url: jspath + "reports/carboncoop/Lib/targetbar-carboncoop.js",
+        dataType: 'script',
+        async: false
+    });
 </script>
 <style>
     #logo-in-report{
