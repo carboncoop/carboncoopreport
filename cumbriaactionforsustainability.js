@@ -15,6 +15,7 @@ $.ajax({
 
 function cumbriaactionforsustainability_initUI() {
    carboncoop_initUI();
+   delete report_html.cumbriaactionforsustainability; // report_html works as a cache keeping the html of the reports. The problem is that the html of this reports is loaded with javascript so the cache is empty and when trying to reload this report nothing is shown. Emptying this cache that every time we reload the report we do the whole process instead of trying to use the cache
 }
 
 function cumbriaactionforsustainability_UpdateUI() {
