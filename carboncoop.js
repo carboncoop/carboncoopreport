@@ -490,50 +490,101 @@ function add_energy_demand_figure(scenarios) {
     EnergyDemand.draw('energy-demand');
 }
 function add_primary_energy_usage_figure(scenarios) {
-    var primaryEnergyUseData = getPrimaryEnergyUseData(scenarios);
-    var max = primaryEnergyUseData.max;
-    var min = primaryEnergyUseData.min - 50;
-    delete primaryEnergyUseData.max;
-    delete primaryEnergyUseData.min;
-    var dataGraph = prepare_data_for_graph(primaryEnergyUseData);
-    var primaryEneryUse = new BarChart({
-        chartTitleColor: 'rgb(87, 77, 86)',
-        yAxisLabelColor: 'rgb(87, 77, 86)',
-        barLabelsColor: 'rgb(87, 77, 86)',
-        yAxisLabel: 'kWh/m' + String.fromCharCode(178) + '.year',
-        fontSize: 33,
-        font: "Karla",
-        width: 1200,
-        chartHeight: 600,
-        division: 50,
-        barWidth: 550 / dataGraph.length,
-        barGutter: 400 / dataGraph.length,
-        chartHigh: max,
-        chartLow: min,
-        defaultBarColor: 'rgb(157,213,203)',
-        barColors: {
-            'Water Heating': 'rgb(157,213,203)',
-            'Space Heating': 'rgb(66, 134, 244)',
-            'Cooking': 'rgb(24,86,62)',
-            'Appliances': 'rgb(240,212,156)',
-            'Lighting': 'rgb(236,102,79)', 'Fans and Pumps': 'rgb(246, 167, 7)', 'Non categorized': 'rgb(131, 51, 47)',
-            // 'Generation': 'rgb(200,213,203)'
-        },
-        data: dataGraph,
-        targets: [
-            {
-                label: 'UK Average 360 kWh/m' + String.fromCharCode(178) + '.a',
-                target: 360,
-                color: 'rgb(231,37,57)'
-            }, {
-                label: 'Carbon Coop Target 120 kWh/m' + String.fromCharCode(178) + '.a',
-                target: 120,
-                color: 'rgb(231,37,57)'
+    /*var primaryEnergyUseData = getPrimaryEnergyUseData(scenarios);
+     var max = primaryEnergyUseData.max;
+     var min = primaryEnergyUseData.min - 50;
+     delete primaryEnergyUseData.max;
+     delete primaryEnergyUseData.min;
+     var dataGraph = prepare_data_for_graph(primaryEnergyUseData);
+     var primaryEneryUse = new BarChart({
+     chartTitleColor: 'rgb(87, 77, 86)',
+     yAxisLabelColor: 'rgb(87, 77, 86)',
+     barLabelsColor: 'rgb(87, 77, 86)',
+     yAxisLabel: 'kWh/m' + String.fromCharCode(178) + '.year',
+     fontSize: 33,
+     font: "Karla",
+     width: 1200,
+     chartHeight: 600,
+     division: 50,
+     barWidth: 550 / dataGraph.length,
+     barGutter: 400 / dataGraph.length,
+     chartHigh: max,
+     chartLow: min,
+     defaultBarColor: 'rgb(157,213,203)',
+     barColors: {
+     'Water Heating': 'rgb(157,213,203)',
+     'Space Heating': 'rgb(66, 134, 244)',
+     'Cooking': 'rgb(24,86,62)',
+     'Appliances': 'rgb(240,212,156)',
+     'Lighting': 'rgb(236,102,79)', 'Fans and Pumps': 'rgb(246, 167, 7)', 'Non categorized': 'rgb(131, 51, 47)',
+     // 'Generation': 'rgb(200,213,203)'
+     },
+     data: dataGraph,
+     targets: [
+     {
+     label: 'UK Average 360 kWh/m' + String.fromCharCode(178) + '.a',
+     target: 360,
+     color: 'rgb(231,37,57)'
+     }, {
+     label: 'Carbon Coop Target 120 kWh/m' + String.fromCharCode(178) + '.a',
+     target: 120,
+     color: 'rgb(231,37,57)'
+     }
+     ],
+     });
+     $('#primary-energy-use').html('');
+     primaryEneryUse.draw('primary-energy-use');*/
+
+    google.charts.load('current', {'packages': ['sankey']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'From');
+        data.addColumn('string', 'To');
+        data.addColumn('number', 'Weight');
+
+        var array = [];
+        for (var i = 0; i < scenarios.length; i++) {
+            if (typeof project[scenarios[i]] !== "undefined") {
+                if (typeof project[scenarios[i]].primary_energy_use_by_requirement !== "undefined") {
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] !== "undefined")
+                        array.push([scenarios[i], 'Water heating', project[scenarios[i]].primary_energy_use_by_requirement['waterheating'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] !== "undefined")
+                        array.push([scenarios[i], 'Space heating', project[scenarios[i]].primary_energy_use_by_requirement['space_heating'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['cooking'] !== "undefined")
+                        array.push([scenarios[i], 'Cooking', project[scenarios[i]].primary_energy_use_by_requirement['cooking'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['appliances'] !== "undefined")
+                        array.push([scenarios[i], 'Appliances', project[scenarios[i]].primary_energy_use_by_requirement['appliances'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['lighting'] !== "undefined")
+                        array.push([scenarios[i], 'Lighting', project[scenarios[i]].primary_energy_use_by_requirement['lighting'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] !== "undefined")
+                        array.push([scenarios[i], 'Fans and pumps', project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] / project[scenarios[i]].TFA]);
+                    if (typeof project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] !== "undefined")
+                        array.push([scenarios[i], 'Fans and pumps', project[scenarios[i]].primary_energy_use_by_requirement['fans_and_pumps'] / project[scenarios[i]].TFA]);
+                    if (project[scenarios[i]].use_generation == 1 && project[scenarios[i]].fuel_totals['generation'].primaryenergy < 0) {
+                        array.push([scenarios[i], 'Fans and pumps', -project[scenarios[i]].fuel_totals['generation'].primaryenergy / project[scenarios[i]].TFA]);
+                    }
+                }
             }
-        ],
-    });
-    $('#primary-energy-use').html('');
-    primaryEneryUse.draw('primary-energy-use');
+        }
+        console.log(array)
+        data.addRows(array);
+
+        // Sets chart options.
+        var options = {
+            width: 1000,
+            height: 600,
+            sankey: {
+                link: {colorMode: 'source'},
+                node: {label: {fontSize: 18}}
+            }
+        };
+
+        // Instantiates and draws our chart, passing in some options.
+        var chart = new google.visualization.Sankey(document.getElementById('primary-energy-use'));
+        chart.draw(data, options);
+    }
 }
 function add_carbon_dioxide_per_m2_figure(scenarios) {
     var carbonDioxideEmissionsData = [];
