@@ -1145,7 +1145,7 @@ function prepare_data_for_graph(data_source) {
     if (data_source.master != undefined)
         dataFig.push({label: 'Your home now', value: data_source.master});
     if (data_source.bills != undefined)
-        dataFig.push({label: 'Bills data', value: data_source.master});
+        dataFig.push({label: 'Bills data', value: data_source.bills});
 
     // Add rst of scenarios
     for (var scenario in data_source)
